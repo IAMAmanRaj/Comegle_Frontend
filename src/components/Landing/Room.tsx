@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 // import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
+import type { User } from "../../store/useAuthStore";
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
 const Room = ({
-  name,
+  user,
   localAudioTrack,
   localVideoTrack,
   setJoined,
 }: {
-  name: string;
+  user: User;
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
   setJoined: (joined: boolean) => void;
@@ -59,7 +60,7 @@ const Room = ({
     });
 
     socket.on("connect", () => {
-      socket.emit("register-name", { name });
+      socket.emit("register-name", { name: user.username });
     });
 
     socket.on("send-offer", async ({ roomId }) => {
@@ -248,7 +249,7 @@ const Room = ({
     socket.on("chat-message", appendMessageFromSender);
 
     setSocket(socket);
-  }, [name]);
+  }, [user.username]);
 
   useEffect(() => {
     if (localVideoRef.current) {
@@ -308,7 +309,7 @@ const Room = ({
       setChatMessages((prev) => [
         ...prev,
         {
-          senderName: name,
+          senderName: user.username!,
           senderId: socket.id ?? "unknown",
           message: chatInput,
           timestamp: Date.now(),

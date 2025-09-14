@@ -16,7 +16,7 @@ const CollegeNotAllowed = () => {
         <input
           type="text"
           placeholder="Your Name"
-          defaultValue={user?.fullName}
+          defaultValue={user?.full_name}
           className="p-2 rounded bg-white/50 text-black"
           required
         />

@@ -10,6 +10,9 @@ const Main = () => {
   const setToken = useAuthStore((s) => s.setToken);
   const navigate = useNavigate();
 
+  //addLoading State using UseMutation and embed it in the code to toggle signing in... button UI state
+  
+
   const mutation = useMutation({
     mutationFn: async (credential: string) => {
       const res = await api.post("/auth/google/verify", { credential });
@@ -18,9 +21,10 @@ const Main = () => {
     onSuccess: (response) => {
       // ✅ Redirect logic
       if (response.message.includes("already exists")) {
+        console.log("response", response.data);
         // ✅ Save user in zustand
         setUser(response.data.user);
-        setToken(response.data.token);
+        setToken(response.data.accessToken);
         navigate("/landing");
         toast.success("Welcome back!");
       } else if (response.message.includes("College allowed")) {
@@ -33,8 +37,7 @@ const Main = () => {
     onError: (err: any) => {
       toast.error(err.response?.data?.message || "Authentication failed");
       if (err.response?.status === 403) {
-  
-        setUser(err.response?.data?.data?.user || null); 
+        setUser(err.response?.data?.data?.user || null);
         navigate("/collegenotallowed");
       }
     },
@@ -50,10 +53,17 @@ const Main = () => {
         <span className="text-white/70 text-lg mb-4">
           🔒 Sign in to use video chat
         </span>
-        <GoogleLogin
-          onSuccess={(res) => res.credential && mutation.mutate(res.credential)}
-          onError={() => toast.error("Google Login Failed")}
-        />
+        {mutation.isPending ? (
+          <div className="flex items-center">
+            <span className="mr-2">Signing in...</span>
+          </div>
+        ) : (
+          <GoogleLogin
+            onSuccess={(res) => res.credential && mutation.mutate(res.credential)}
+            onError={() => toast.error("Google Login Failed")}
+          />
+        )}
+
       </div>
 
       <p className="mt-6 text-lg text-white/90 text-center">
