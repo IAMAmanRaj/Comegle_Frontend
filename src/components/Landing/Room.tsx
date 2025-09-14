@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 // import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
-import type { User } from "../../store/useAuthStore";
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
@@ -83,8 +82,6 @@ const Room = ({
           }
         },
       });
-
-      socket.emit("get-user-count", {});
     });
 
     socket.on("user-count", (data) => {

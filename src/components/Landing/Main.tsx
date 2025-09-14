@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Room from "./Room";
 import { useAuthStore, type User } from "../../store/useAuthStore";
 import Header from "../General/Header";
-import { Play, Settings, Users } from "lucide-react";
+import { Play, Settings} from "lucide-react";
 import LogoutModal from "./LogoutModal";
 import { api } from "../../Utils/api";
 import toast from "react-hot-toast";
