@@ -8,7 +8,10 @@ import type { AxiosError } from "axios";
 export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
   children,
 }) => {
+  //destructure token and setUser and setToken in one line
+  
   const token = useAuthStore((s) => s.token);
+  const setUser = useAuthStore((s) => s.setUser);
   const setToken = useAuthStore((s) => s.setToken);
   const resetStore = (useAuthStore.getState() as any).reset;
 
@@ -24,8 +27,8 @@ export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
         if (cancelled) return;
 
         if (res.data?.success) {
-          const { accessToken } = res.data.data;
-
+          const { user,accessToken } = res.data.data;
+          setUser(user);
           setToken(accessToken);
         } else {
           handleAuthFailure("Unauthorized");

@@ -16,7 +16,6 @@ export const Main = () => {
   const navigate = useNavigate();
   const { setUser, setToken } = useAuthStore();
 
-
   const getCam = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
@@ -78,12 +77,13 @@ export const Main = () => {
           ref={videoRef}
           className="rounded-2xl w-full max-w-md aspect-video border-4 border-white/30 shadow-xl"
         />
-        
+
+
         <input
           type="text"
           placeholder="your prefilled username here"
           defaultValue={user?.username}
-         readOnly
+          readOnly
           className="mt-6 px-5 py-3 rounded-md text-gray-800 w-full max-w-xs bg-white placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-pink-400"
         />
 

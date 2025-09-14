@@ -60,8 +60,6 @@ const Main = () => {
       age: Number(form.get("age")),
     };
 
-    console.log("Payload value:", payload);
-
     const result = userOnboardingSchema.safeParse(payload);
 
     if (!result.success) {

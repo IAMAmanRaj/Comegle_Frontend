@@ -5,6 +5,12 @@ import type { User } from "../../store/useAuthStore";
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
+interface PeerUser {
+  name: string;
+  college: string;
+  gender: string;
+}
+
 const Room = ({
   user,
   localAudioTrack,
@@ -28,10 +34,15 @@ const Room = ({
   const [, setRemoteMediaStream] = useState<MediaStream | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const [, setPeerName] = useState("");
+  // Update your state - replace the peerName state with peerUser
+  const [peerUser, setPeerUser] = useState<PeerUser | null>(null);
+
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPeerAudioMuted, setIsPeerAudioMuted] = useState(false);
   const [remoteMuted, setRemoteMuted] = useState(false);
+
+  // 1. Add state for user count
+  const [userCount, setUserCount] = useState<number>(0);
 
   // 1. Add state for roomId and chat
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -60,28 +71,35 @@ const Room = ({
     });
 
     socket.on("connect", () => {
-      socket.emit("register-name", { name: user.username });
+      socket.emit("register-name", {
+        user: {
+          name: user.username,
+          college: user?.college?.name,
+          gender: user.gender,
+        },
+      });
+
+      socket.emit("get-user-count", {});
+    });
+
+    socket.on("user-count", (data) => {
+      console.log("User count data:", data); // 👈 debug log
+      setUserCount(data.count); // 👈 save count in state
     });
 
     socket.on("send-offer", async ({ roomId }) => {
-      console.log("sending offer");
       setLobby(false);
       const pc = new RTCPeerConnection();
 
       setSendingPc(pc);
       if (localVideoTrack) {
-        console.error("added local video tack");
-        console.log(localVideoTrack);
         pc.addTrack(localVideoTrack);
       }
       if (localAudioTrack) {
-        console.error("added local audio tack");
-        console.log(localAudioTrack);
         pc.addTrack(localAudioTrack);
       }
 
       pc.onicecandidate = async (e) => {
-        console.log("receiving ice candidate locally");
         if (e.candidate) {
           socket.emit("add-ice-candidate", {
             candidate: e.candidate,
@@ -92,7 +110,6 @@ const Room = ({
       };
 
       pc.onnegotiationneeded = async () => {
-        console.log("on negotiation neeeded, sending offer");
         const sdp = await pc.createOffer();
         //@ts-ignore
         pc.setLocalDescription(sdp);
@@ -104,7 +121,6 @@ const Room = ({
     });
 
     socket.on("offer", async ({ roomId, sdp: remoteSdp }) => {
-      console.log("received offer");
       setLobby(false);
       const pc = new RTCPeerConnection();
 
@@ -117,7 +133,6 @@ const Room = ({
       // trickle ice
       setReceivingPc(pc);
       pc.ontrack = (e) => {
-        console.error("inside ontrack");
         const { track, type } = e;
         if (type == "audio") {
           setRemoteAudioTrack(track);
@@ -136,7 +151,7 @@ const Room = ({
         if (!e.candidate) {
           return;
         }
-        console.log("omn ice candidate on receiving side");
+
         if (e.candidate) {
           socket.emit("add-ice-candidate", {
             candidate: e.candidate,
@@ -160,12 +175,10 @@ const Room = ({
     socket.on("answer", ({ roomId, sdp: remoteSdp }) => {
       setLobby(false);
 
-      console.log(roomId);
       setSendingPc((pc) => {
         pc?.setRemoteDescription(remoteSdp);
         return pc;
       });
-      console.log("loop closed");
     });
 
     socket.on("lobby", () => {
@@ -173,14 +186,11 @@ const Room = ({
     });
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-      console.log("add ice candidate from remote");
-      console.log({ candidate, type });
       if (type == "sender") {
         setReceivingPc((pc) => {
           if (!pc) {
             console.error("receiving pc not found");
           } else {
-            console.error(pc.ontrack);
           }
           pc?.addIceCandidate(candidate);
           return pc;
@@ -198,15 +208,14 @@ const Room = ({
       }
     });
 
-    socket.on("matched", ({ peerName, roomId }) => {
-      setPeerName(peerName);
+    // Update the "matched" socket event handler
+    socket.on("matched", ({ peerUser, roomId }) => {
+      setPeerUser(peerUser); // Store the full peer user object
+      console.log("Matched with:", peerUser); // Log the entire peer user object
       remoteVideoRef.current!.style.display = "block";
       remoteVideoRef.current!.muted = false;
-      console.log("all values", { peerName, roomId });
+
       setRoomId(roomId);
-      // if (remoteAudioTrack) {
-      //   remoteAudioTrack.enabled = true;
-      // }
     });
 
     socket.on("peer-video-toggled", ({ enabled }) => {
@@ -215,17 +224,28 @@ const Room = ({
 
     socket.on("peer-audio-toggled", ({ enabled }) => {
       setIsPeerAudioMuted(!enabled);
-      if (remoteMuted) {
-        return;
-      }
-      remoteVideoRef.current!.muted = !enabled;
+      setRemoteMuted((currentRemoteMuted) => {
+        // React calls this function and passes the CURRENT value of remoteMuted
+        // This bypasses the stale closure problem!
+
+        if (currentRemoteMuted) {
+          // If remote is currently muted by user, don't change video element
+
+          return currentRemoteMuted; // Return same value = no state change
+        }
+
+        // If remote is NOT muted by user, update the video element
+        remoteVideoRef.current!.muted = !enabled;
+
+        return currentRemoteMuted; // Return same value = no state change
+      });
     });
 
     socket.on("peer-disconnected", () => {
-      console.log("peer disconnected");
       setIsPeerAudioMuted(false);
       setAudioEnabled(true);
       setRemoteMuted(false);
+      setPeerUser(null); // Clear peer user info
       // Clear remote video
       if (localAudioTrack) {
         localAudioTrack.enabled = true;
@@ -264,6 +284,7 @@ const Room = ({
     setIsPeerAudioMuted(false);
     setAudioEnabled(true);
     setRemoteMuted(false);
+    setPeerUser(null); // Clear peer user info
     if (localAudioTrack) {
       localAudioTrack.enabled = true;
     }
@@ -296,14 +317,13 @@ const Room = ({
     if (remoteVideoRef.current) {
       const isMuted = !remoteMuted;
       remoteVideoRef.current.muted = isMuted;
+
       setRemoteMuted(isMuted);
     }
   };
 
   // Send chat message to peer
   const sendChatMessage = () => {
-
-    console.log("all values", { socket, roomId, chatInput });
     if (socket && roomId && chatInput.trim()) {
       socket.emit("chat-message", { roomId, message: chatInput });
       setChatMessages((prev) => [
@@ -354,6 +374,10 @@ const Room = ({
             {/* <span className="mt-2 text-sm text-white/70">Your Camera</span> */}
           </div>
         </div>
+        {/* 👇 online users count */}
+        <div className="mt-4 w-[200px] mx-auto text-sm font-semibold bg-white/20 px-4 py-2 rounded-lg shadow-md backdrop-blur-sm">
+          🟢 {userCount} {userCount === 1 ? "user online" : "users online"}
+        </div>
 
         {lobby ? (
           <div className="lg:mt-4 w-full lg:w-80 text-center text-white/80 animate-pulse">
@@ -381,6 +405,23 @@ const Room = ({
       <div className="rightDiv h-[70vh] lg:h-screen w-full lg:w-1/2 flex flex-col bg-black/50 p-4">
         <h2 className="text-xl font-semibold text-white mb-2">💬 Chat</h2>
 
+        {/* Peer User Info Banner */}
+        {peerUser && (
+          <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-white/20 rounded-lg p-3 mb-3">
+            <div className="text-sm text-white/90">
+              🎉{" "}
+              <span className="font-semibold">
+                {peerUser.name} ({peerUser.gender})
+              </span>{" "}
+              from{" "}
+              <span className="font-medium text-blue-200">
+                {peerUser.college}
+              </span>{" "}
+              has joined the chat!
+            </div>
+          </div>
+        )}
+
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto bg-white/10 rounded-lg p-3 space-y-2 text-sm">
           {chatMessages.map((msg, idx) => (
@@ -398,11 +439,10 @@ const Room = ({
                 <div className="font-bold text-xs mb-1">{msg.senderName}</div>
                 <div className="w-3/4">{msg.message}</div>
                 <div className="text-[10px] absolute bottom-1 right-2 text-gray-300">
-                {new Date(msg.timestamp).toLocaleTimeString([], { 
-  hour: '2-digit', 
-  minute: '2-digit' 
-})}
-
+                  {new Date(msg.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             </div>
@@ -421,7 +461,6 @@ const Room = ({
           />
           <button
             className="bg-green-500 px-4 py-2 rounded-r-lg hover:bg-green-600 transition"
-           
             onClick={sendChatMessage}
           >
             Send

@@ -21,7 +21,7 @@ const Main = () => {
     onSuccess: (response) => {
       // ✅ Redirect logic
       if (response.message.includes("already exists")) {
-        console.log("response", response.data);
+      
         // ✅ Save user in zustand
         setUser(response.data.user);
         setToken(response.data.accessToken);
