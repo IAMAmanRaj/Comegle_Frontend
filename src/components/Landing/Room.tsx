@@ -17,7 +17,7 @@ const Room = ({
   localVideoTrack,
   setJoined,
 }: {
-  user: User;
+  user: any;
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
   setJoined: (joined: boolean) => void;
@@ -76,6 +76,11 @@ const Room = ({
           name: user.username,
           college: user?.college?.name,
           gender: user.gender,
+          collegeState:user.collegeState,
+          preferences:{
+            states: user.matchingPreferences.selectedStates,
+            preferredGender: [user.matchingPreferences.preferredGender]
+          }
         },
       });
 
@@ -172,7 +177,7 @@ const Room = ({
       });
     });
 
-    socket.on("answer", ({ roomId, sdp: remoteSdp }) => {
+    socket.on("answer", ({ sdp: remoteSdp }) => {
       setLobby(false);
 
       setSendingPc((pc) => {
@@ -245,6 +250,7 @@ const Room = ({
       setIsPeerAudioMuted(false);
       setAudioEnabled(true);
       setRemoteMuted(false);
+      setChatMessages([]); // Clear chat messages
       setPeerUser(null); // Clear peer user info
       // Clear remote video
       if (localAudioTrack) {
@@ -284,6 +290,7 @@ const Room = ({
     setIsPeerAudioMuted(false);
     setAudioEnabled(true);
     setRemoteMuted(false);
+    setChatMessages([]);
     setPeerUser(null); // Clear peer user info
     if (localAudioTrack) {
       localAudioTrack.enabled = true;
