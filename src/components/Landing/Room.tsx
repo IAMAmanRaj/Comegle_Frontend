@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 // import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 
+const ICE_SERVERS = [
+  { urls: "stun:stun.l.google.com:19302" },
+  // For production, add a TURN server here for guaranteed relay:
+  // { urls: "turn:your.turn.server:3478", username: "username", credential: "password" }
+];
+
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
 interface PeerUser {
@@ -64,6 +70,15 @@ const Room = ({
     setChatMessages((prev) => [...prev, msg]);
   };
 
+  // --- Clean up peer connections and media ---
+  const cleanupPeers = () => {
+    receivingPc?.close();
+    sendingPc?.close();
+    setReceivingPc(null);
+    setSendingPc(null);
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+  };
+
   useEffect(() => {
     const socket = io(URL, {
       transports: ["websocket"],
@@ -75,11 +90,11 @@ const Room = ({
           name: user.username,
           college: user?.college?.name,
           gender: user.gender,
-          collegeState:user.collegeState,
-          preferences:{
+          collegeState: user.collegeState,
+          preferences: {
             states: user.matchingPreferences.selectedStates,
-            preferredGender: [user.matchingPreferences.preferredGender]
-          }
+            preferredGender: [user.matchingPreferences.preferredGender],
+          },
         },
       });
     });
@@ -91,7 +106,7 @@ const Room = ({
 
     socket.on("send-offer", async ({ roomId }) => {
       setLobby(false);
-      const pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
       setSendingPc(pc);
       if (localVideoTrack) {
@@ -124,7 +139,7 @@ const Room = ({
 
     socket.on("offer", async ({ roomId, sdp: remoteSdp }) => {
       setLobby(false);
-      const pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
       const stream = new MediaStream();
       if (remoteVideoRef.current) {
@@ -138,12 +153,12 @@ const Room = ({
         const { track, type } = e;
         if (type == "audio") {
           setRemoteAudioTrack(track);
+          stream.addTrack(e.track);
           // @ts-ignore
-          remoteVideoRef.current.srcObject.addTrack(track);
-        } else {
-          setRemoteVideoTrack(track);
-          // @ts-ignore
-          remoteVideoRef.current.srcObject.addTrack(track);
+          // remoteVideoRef.current.srcObject.addTrack(track);
+        } else if (e.track.kind === "video") {
+          setRemoteVideoTrack(e.track);
+          stream.addTrack(e.track);
         }
         //@ts-ignore
         remoteVideoRef.current.play();
@@ -163,22 +178,17 @@ const Room = ({
         }
       };
 
-      await pc.setRemoteDescription(remoteSdp);
-      const sdp = await pc.createAnswer();
-      //@ts-ignore
-      await pc.setLocalDescription(sdp);
-
-      socket.emit("answer", {
-        roomId,
-        sdp: sdp,
-      });
+      await pc.setRemoteDescription(new RTCSessionDescription(remoteSdp));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit("answer", { roomId, sdp: answer });
     });
 
     socket.on("answer", ({ sdp: remoteSdp }) => {
       setLobby(false);
 
       setSendingPc((pc) => {
-        pc?.setRemoteDescription(remoteSdp);
+        pc?.setRemoteDescription(new RTCSessionDescription(remoteSdp));
         return pc;
       });
     });
@@ -194,7 +204,7 @@ const Room = ({
             console.error("receiving pc not found");
           } else {
           }
-          pc?.addIceCandidate(candidate);
+          pc?.addIceCandidate(new RTCIceCandidate(candidate));
           return pc;
         });
       } else {
@@ -204,7 +214,7 @@ const Room = ({
           } else {
             // console.error(pc.ontrack)
           }
-          pc?.addIceCandidate(candidate);
+          pc?.addIceCandidate(new RTCIceCandidate(candidate));
           return pc;
         });
       }
@@ -214,14 +224,16 @@ const Room = ({
     socket.on("matched", ({ peerUser, roomId }) => {
       setPeerUser(peerUser); // Store the full peer user object
       console.log("Matched with:", peerUser); // Log the entire peer user object
-      remoteVideoRef.current!.style.display = "block";
-      remoteVideoRef.current!.muted = false;
+      remoteVideoRef.current &&
+        (remoteVideoRef.current.style.display = "block");
+      remoteVideoRef.current && (remoteVideoRef.current.muted = false);
 
       setRoomId(roomId);
     });
 
     socket.on("peer-video-toggled", ({ enabled }) => {
-      remoteVideoRef.current!.style.display = enabled ? "block" : "none";
+      remoteVideoRef.current &&
+        (remoteVideoRef.current.style.display = enabled ? "block" : "none");
     });
 
     socket.on("peer-audio-toggled", ({ enabled }) => {
@@ -237,7 +249,7 @@ const Room = ({
         }
 
         // If remote is NOT muted by user, update the video element
-        remoteVideoRef.current!.muted = !enabled;
+        remoteVideoRef.current && (remoteVideoRef.current.muted = !enabled);
 
         return currentRemoteMuted; // Return same value = no state change
       });
@@ -253,15 +265,8 @@ const Room = ({
       if (localAudioTrack) {
         localAudioTrack.enabled = true;
       }
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
-      }
-
-      // Close and reset peer connections
-      receivingPc?.close();
-      sendingPc?.close();
-      setReceivingPc(null);
-      setSendingPc(null);
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+      cleanupPeers();
 
       // Reset UI
       setLobby(true);
@@ -272,6 +277,11 @@ const Room = ({
     socket.on("chat-message", appendMessageFromSender);
 
     setSocket(socket);
+    return () => {
+      // Cleanup all listeners, peer connections and media
+      socket.disconnect();
+      cleanupPeers();
+    };
   }, [user.username]);
 
   useEffect(() => {
@@ -281,7 +291,7 @@ const Room = ({
         localVideoRef.current.play();
       }
     }
-  }, [localVideoRef]);
+  }, [localVideoTrack ]);
 
   const skipAndReset = () => {
     setIsPeerAudioMuted(false);
@@ -296,15 +306,7 @@ const Room = ({
     if (socket) {
       socket.emit("leave-room", { roomId }); // Tell backend to clean up the room and send the room id to be cleaned and the peer in the room to be sent back to lobby
     }
-
-    // Clear local state
-    remoteVideoRef.current && (remoteVideoRef.current.srcObject = null);
-    receivingPc?.close();
-    sendingPc?.close();
-
-    setReceivingPc(null);
-    setSendingPc(null);
-
+    cleanupPeers();
     setLobby(true);
   };
 
