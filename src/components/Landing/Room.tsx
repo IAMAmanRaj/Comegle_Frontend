@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-// import { useSearchParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 
 const ICE_SERVERS = [
@@ -27,29 +26,24 @@ const Room = ({
   localVideoTrack: MediaStreamTrack | null;
   setJoined: (joined: boolean) => void;
 }) => {
-  // const [searchParams, setSearchParams] = useSearchParams();
   const [lobby, setLobby] = useState(true);
   const [socket, setSocket] = useState<null | Socket>(null);
   const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null);
-  const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
-    null
-  );
+  const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(null);
   const [, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null);
   const [, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null);
   const [, setRemoteMediaStream] = useState<MediaStream | null>(null);
+
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  // Update your state - replace the peerName state with peerUser
-  const [peerUser, setPeerUser] = useState<PeerUser | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
 
+  const [peerUser, setPeerUser] = useState<PeerUser | null>(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isPeerAudioMuted, setIsPeerAudioMuted] = useState(false);
   const [remoteMuted, setRemoteMuted] = useState(false);
 
-  // 1. Add state for user count
   const [userCount, setUserCount] = useState<number>(0);
-
-  // 1. Add state for roomId and chat
   const [roomId, setRoomId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<
     {
@@ -77,6 +71,7 @@ const Room = ({
     setReceivingPc(null);
     setSendingPc(null);
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
   };
 
   useEffect(() => {
@@ -100,8 +95,7 @@ const Room = ({
     });
 
     socket.on("user-count", (data) => {
-      console.log("User count data:", data); // 👈 debug log
-      setUserCount(data.count); // 👈 save count in state
+      setUserCount(data.count);
     });
 
     socket.on("send-offer", async ({ roomId }) => {
@@ -128,8 +122,7 @@ const Room = ({
 
       pc.onnegotiationneeded = async () => {
         const sdp = await pc.createOffer();
-        //@ts-ignore
-        pc.setLocalDescription(sdp);
+        await pc.setLocalDescription(sdp);
         socket.emit("offer", {
           sdp,
           roomId,
@@ -141,34 +134,33 @@ const Room = ({
       setLobby(false);
       const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
-      const stream = new MediaStream();
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = stream;
-      }
+      const videoStream = new MediaStream();
+      setRemoteMediaStream(videoStream);
 
-      setRemoteMediaStream(stream);
-      // trickle ice
       setReceivingPc(pc);
+
       pc.ontrack = (e) => {
-        const { track, type } = e;
-        if (type == "audio") {
+        const { track } = e;
+        if (track.kind === "audio") {
           setRemoteAudioTrack(track);
-          stream.addTrack(e.track);
-          // @ts-ignore
-          // remoteVideoRef.current.srcObject.addTrack(track);
-        } else if (e.track.kind === "video") {
-          setRemoteVideoTrack(e.track);
-          stream.addTrack(e.track);
+          // Create a stream for just the audio track and assign to audio element
+          const audioStream = new MediaStream([track]);
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = audioStream;
+            remoteAudioRef.current.muted = remoteMuted;
+            // .play() will be triggered by browser if autoPlay is set
+          }
+        } else if (track.kind === "video") {
+          setRemoteVideoTrack(track);
+          videoStream.addTrack(track);
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = videoStream;
+            remoteVideoRef.current.play();
+          }
         }
-        //@ts-ignore
-        remoteVideoRef.current.play();
       };
 
       pc.onicecandidate = async (e) => {
-        if (!e.candidate) {
-          return;
-        }
-
         if (e.candidate) {
           socket.emit("add-ice-candidate", {
             candidate: e.candidate,
@@ -198,36 +190,24 @@ const Room = ({
     });
 
     socket.on("add-ice-candidate", ({ candidate, type }) => {
-      if (type == "sender") {
+      if (type === "sender") {
         setReceivingPc((pc) => {
-          if (!pc) {
-            console.error("receiving pc not found");
-          } else {
-          }
           pc?.addIceCandidate(new RTCIceCandidate(candidate));
           return pc;
         });
       } else {
         setSendingPc((pc) => {
-          if (!pc) {
-            console.error("sending pc not found");
-          } else {
-            // console.error(pc.ontrack)
-          }
           pc?.addIceCandidate(new RTCIceCandidate(candidate));
           return pc;
         });
       }
     });
 
-    // Update the "matched" socket event handler
     socket.on("matched", ({ peerUser, roomId }) => {
-      setPeerUser(peerUser); // Store the full peer user object
-      console.log("Matched with:", peerUser); // Log the entire peer user object
+      setPeerUser(peerUser);
       remoteVideoRef.current &&
         (remoteVideoRef.current.style.display = "block");
       remoteVideoRef.current && (remoteVideoRef.current.muted = false);
-
       setRoomId(roomId);
     });
 
@@ -240,18 +220,13 @@ const Room = ({
       setIsPeerAudioMuted(!enabled);
       setRemoteMuted((currentRemoteMuted) => {
         // React calls this function and passes the CURRENT value of remoteMuted
-        // This bypasses the stale closure problem!
-
         if (currentRemoteMuted) {
-          // If remote is currently muted by user, don't change video element
-
-          return currentRemoteMuted; // Return same value = no state change
+          return currentRemoteMuted;
         }
-
-        // If remote is NOT muted by user, update the video element
-        remoteVideoRef.current && (remoteVideoRef.current.muted = !enabled);
-
-        return currentRemoteMuted; // Return same value = no state change
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.muted = !enabled;
+        }
+        return currentRemoteMuted;
       });
     });
 
@@ -259,19 +234,15 @@ const Room = ({
       setIsPeerAudioMuted(false);
       setAudioEnabled(true);
       setRemoteMuted(false);
-      setChatMessages([]); // Clear chat messages
-      setPeerUser(null); // Clear peer user info
-      // Clear remote video
+      setChatMessages([]);
+      setPeerUser(null);
       if (localAudioTrack) {
         localAudioTrack.enabled = true;
       }
       if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+      if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
       cleanupPeers();
-
-      // Reset UI
       setLobby(true);
-
-      // setJoined(false);
     });
 
     socket.on("chat-message", appendMessageFromSender);
@@ -282,29 +253,26 @@ const Room = ({
       socket.disconnect();
       cleanupPeers();
     };
-  }, [user.username]);
+  }, [user.username, remoteMuted]);
 
   useEffect(() => {
-    if (localVideoRef.current) {
-      if (localVideoTrack) {
-        localVideoRef.current.srcObject = new MediaStream([localVideoTrack]);
-        localVideoRef.current.play();
-      }
+    if (localVideoRef.current && localVideoTrack) {
+      localVideoRef.current.srcObject = new MediaStream([localVideoTrack]);
+      localVideoRef.current.play();
     }
-  }, [localVideoTrack ]);
+  }, [localVideoTrack]);
 
   const skipAndReset = () => {
     setIsPeerAudioMuted(false);
     setAudioEnabled(true);
     setRemoteMuted(false);
     setChatMessages([]);
-    setPeerUser(null); // Clear peer user info
+    setPeerUser(null);
     if (localAudioTrack) {
       localAudioTrack.enabled = true;
     }
-
     if (socket) {
-      socket.emit("leave-room", { roomId }); // Tell backend to clean up the room and send the room id to be cleaned and the peer in the room to be sent back to lobby
+      socket.emit("leave-room", { roomId });
     }
     cleanupPeers();
     setLobby(true);
@@ -320,10 +288,9 @@ const Room = ({
   };
 
   const toggleRemoteAudio = () => {
-    if (remoteVideoRef.current) {
+    if (remoteAudioRef.current) {
       const isMuted = !remoteMuted;
-      remoteVideoRef.current.muted = isMuted;
-
+      remoteAudioRef.current.muted = isMuted;
       setRemoteMuted(isMuted);
     }
   };
@@ -356,6 +323,13 @@ const Room = ({
                 ref={remoteVideoRef}
                 className="rounded-xl border-4 border-white/20 shadow-lg h-56 w-80 object-cover bg-black"
               />
+              <audio
+                ref={remoteAudioRef}
+                autoPlay
+                controls
+                className="absolute left-0 bottom-0"
+                style={{ display: "none" }}
+              />
               <button
                 onClick={toggleRemoteAudio}
                 className="absolute top-2 right-2 hover:cursor-pointer bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition"
@@ -364,7 +338,6 @@ const Room = ({
                 {remoteMuted ? "🔇" : "🔊"}
               </button>
             </div>
-            {/* <span className="mt-2 text-sm text-white/70">Stranger</span> */}
             {isPeerAudioMuted && (
               <span className="text-xs text-red-400 mt-1 animate-pulse">
                 🔇 Peer has muted their mic
@@ -377,14 +350,11 @@ const Room = ({
               ref={localVideoRef}
               className="rounded-xl border-4 border-white/20 shadow-lg h-56 w-80 object-cover bg-black"
             />
-            {/* <span className="mt-2 text-sm text-white/70">Your Camera</span> */}
           </div>
         </div>
-        {/* 👇 online users count */}
         <div className="mt-4 w-[200px] mx-auto text-sm font-semibold bg-white/20 px-4 py-2 rounded-lg shadow-md backdrop-blur-sm">
           🟢 {userCount} {userCount === 1 ? "user online" : "users online"}
         </div>
-
         {lobby ? (
           <div className="lg:mt-4 w-full lg:w-80 text-center text-white/80 animate-pulse">
             🔍 Matching you with someone...
@@ -397,7 +367,6 @@ const Room = ({
             >
               ⏭ Skip
             </button>
-
             <button
               onClick={toggleAudio}
               className="px-6 py-2 bg-green-600 font-semibold rounded-lg hover:bg-green-700 transition"
@@ -407,11 +376,8 @@ const Room = ({
           </div>
         )}
       </div>
-
       <div className="rightDiv h-[70vh] lg:h-screen w-full lg:w-1/2 flex flex-col bg-black/50 p-4">
         <h2 className="text-xl font-semibold text-white mb-2">💬 Chat</h2>
-
-        {/* Peer User Info Banner */}
         {peerUser && (
           <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-white/20 rounded-lg p-3 mb-3">
             <div className="text-sm text-white/90">
@@ -427,8 +393,6 @@ const Room = ({
             </div>
           </div>
         )}
-
-        {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto bg-white/10 rounded-lg p-3 space-y-2 text-sm">
           {chatMessages.map((msg, idx) => (
             <div
@@ -454,8 +418,6 @@ const Room = ({
             </div>
           ))}
         </div>
-
-        {/* Input Area */}
         <div className="mt-3 flex">
           <input
             type="text"
@@ -473,7 +435,6 @@ const Room = ({
           </button>
         </div>
       </div>
-
       <button
         onClick={() => {
           if (localAudioTrack) {
@@ -481,6 +442,7 @@ const Room = ({
           }
           if (socket) socket.emit("exit", { roomId });
           setJoined(false);
+          cleanupPeers();
         }}
         className=" px-2 text-[10px] py-2 absolute left-2 top-2 bg-red-800 font-semibold rounded-lg hover:bg-red-600 transition"
       >
