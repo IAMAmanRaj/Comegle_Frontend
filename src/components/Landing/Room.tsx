@@ -294,7 +294,7 @@ const Room = ({
     }
 
     if (socket) {
-      socket.emit("leave-room"); // Tell backend to clean up the room
+      socket.emit("leave-room", { roomId }); // Tell backend to clean up the room and send the room id to be cleaned and the peer in the room to be sent back to lobby
     }
 
     // Clear local state
@@ -313,7 +313,7 @@ const Room = ({
       const newState = !audioEnabled;
       localAudioTrack.enabled = newState;
       setAudioEnabled(newState);
-      socket.emit("toggle-audio", { enabled: newState });
+      socket.emit("toggle-audio", { enabled: newState, roomId });
     }
   };
 
@@ -477,7 +477,7 @@ const Room = ({
           if (localAudioTrack) {
             localAudioTrack.enabled = true;
           }
-          if (socket) socket.emit("exit");
+          if (socket) socket.emit("exit", { roomId });
           setJoined(false);
         }}
         className=" px-2 text-[10px] py-2 absolute left-2 top-2 bg-red-800 font-semibold rounded-lg hover:bg-red-600 transition"
