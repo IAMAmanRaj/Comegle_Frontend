@@ -253,7 +253,7 @@ const Room = ({
       socket.disconnect();
       cleanupPeers();
     };
-  }, [user.username, remoteMuted]);
+  }, [user.username]);
 
   useEffect(() => {
     if (localVideoRef.current && localVideoTrack) {
