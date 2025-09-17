@@ -122,14 +122,14 @@ export const Main = () => {
   }, []);
 
   // Mock user data if not available
-  const mockUser = user || {
-    username: 'john_doe',
-    college: {
-      name: 'MIT',
-      state: 'Massachusetts',
-      country: 'USA'
-    }
-  };
+  // const mockUser = user || {
+  //   username: 'john_doe',
+  //   college: {
+  //     name: 'MIT',
+  //     state: 'Massachusetts',
+  //     country: 'USA'
+  //   }
+  // };
 
  if (joined) {
     return (
