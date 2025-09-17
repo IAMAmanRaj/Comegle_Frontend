@@ -20,8 +20,10 @@ export interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  selectedCommunity: string | null; // <- persisted community name
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
+  setSelectedCommunity?: (community: string | null) => void; // <- setter
   reset: () => void;
   _hydrated: boolean; // internal flag to know when rehydration finished
   setHydrated: () => void;
@@ -32,9 +34,11 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      selectedCommunity: null,
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
-      reset: () => set({ user: null, token: null }),
+      setSelectedCommunity: (community) => set({ selectedCommunity: community }),
+      reset: () => set({ user: null, token: null, selectedCommunity: null }),
       _hydrated: false,
       setHydrated: () => set({ _hydrated: true }),
     }),
@@ -44,6 +48,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         token: state.token,
         user: state.user,
+        selectedCommunity: state.selectedCommunity, // persist the community name
       }),
       version: 1,
       onRehydrateStorage: () => (state) => {

@@ -19,17 +19,21 @@ const Room = ({
   user,
   localAudioTrack,
   localVideoTrack,
+  topicName,
   setJoined,
 }: {
   user: any;
   localAudioTrack: MediaStreamTrack | null;
   localVideoTrack: MediaStreamTrack | null;
+  topicName?: string;
   setJoined: (joined: boolean) => void;
 }) => {
   const [lobby, setLobby] = useState(true);
   const [socket, setSocket] = useState<null | Socket>(null);
   const [sendingPc, setSendingPc] = useState<null | RTCPeerConnection>(null);
-  const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(null);
+  const [receivingPc, setReceivingPc] = useState<null | RTCPeerConnection>(
+    null
+  );
   const [, setRemoteVideoTrack] = useState<MediaStreamTrack | null>(null);
   const [, setRemoteAudioTrack] = useState<MediaStreamTrack | null>(null);
   const [, setRemoteMediaStream] = useState<MediaStream | null>(null);
@@ -80,23 +84,45 @@ const Room = ({
     });
 
     socket.on("connect", () => {
-      socket.emit("register-name", {
-        user: {
-          name: user.username,
-          college: user?.college?.name,
-          gender: user.gender,
-          collegeState: user.collegeState,
-          preferences: {
-            states: user.matchingPreferences.selectedStates,
-            preferredGender: [user.matchingPreferences.preferredGender],
+      if (topicName) {
+        socket.emit("register-name-topic", {
+          user: {
+            name: user.username,
+            college: user?.college?.name,
+            gender: user.gender,
+            collegeState: user.collegeState,
+            preferences: {
+              states: user.matchingPreferences.selectedStates,
+              preferredGender: [user.matchingPreferences.preferredGender],
+            },
           },
-        },
-      });
+          topic: topicName,
+        });
+      } else {
+        socket.emit("register-name", {
+          user: {
+            name: user.username,
+            college: user?.college?.name,
+            gender: user.gender,
+            collegeState: user.collegeState,
+            preferences: {
+              states: user.matchingPreferences.selectedStates,
+              preferredGender: [user.matchingPreferences.preferredGender],
+            },
+          },
+        });
+      }
     });
 
-    socket.on("user-count", (data) => {
-      setUserCount(data.count);
-    });
+    if (topicName) {
+      socket.on(`user-count-${topicName}`, (data) => {
+        setUserCount(data.count);
+      });
+    } else {
+      socket.on("user-count", (data) => {
+        setUserCount(data.count);
+      });
+    }
 
     socket.on("send-offer", async ({ roomId }) => {
       setLobby(false);
@@ -271,7 +297,9 @@ const Room = ({
     if (localAudioTrack) {
       localAudioTrack.enabled = true;
     }
-    if (socket) {
+    if (socket && topicName) {
+      socket.emit("leave-topic-room", { topic: topicName, roomId });
+    } else if (socket) {
       socket.emit("leave-room", { roomId });
     }
     cleanupPeers();
@@ -389,6 +417,11 @@ const Room = ({
               <span className="font-medium text-blue-200">
                 {peerUser.college}
               </span>{" "}
+              {topicName ? (
+                <span>interested in <i><b>{topicName ?? "Undefined"}</b></i> </span>
+              ) : (
+                <></>
+              )}
               has joined the chat!
             </div>
           </div>
@@ -440,7 +473,14 @@ const Room = ({
           if (localAudioTrack) {
             localAudioTrack.enabled = true;
           }
-          if (socket) socket.emit("exit", { roomId });
+          if (socket) {
+            if (topicName) {
+              socket.emit("exit-topic", { topic: topicName, roomId });
+            } else {
+              socket.emit("exit", { roomId });
+            }
+          }
+
           setJoined(false);
           cleanupPeers();
         }}

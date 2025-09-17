@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, Users, ArrowLeft, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore, type User } from '../../store/useAuthStore';
-import Header from '../General/Header';
-import AddInterestModal from './AddInterestModal';
+import React, { useState, useEffect } from "react";
+import { Search, TrendingUp, Users, ArrowLeft, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore, type User } from "../../store/useAuthStore";
+import Header from "../General/Header";
+import AddInterestModal from "./AddInterestModal";
 
 interface Community {
   id: string;
   name: string;
+  topic: string;
   description: string;
   activeUsers: number;
   isTrending: boolean;
@@ -15,41 +16,125 @@ interface Community {
 }
 
 const MOCK_COMMUNITIES: Community[] = [
-  { id: '1', name: 'Data Structures & Algorithms', description: 'Discuss coding problems and algorithms', activeUsers: 234, isTrending: true, category: 'Technical' },
-  { id: '2', name: 'System Design', description: 'Learn and share system design concepts', activeUsers: 189, isTrending: true, category: 'Technical' },
-  { id: '3', name: 'Mock Interviews', description: 'Practice interviews with peers', activeUsers: 156, isTrending: false, category: 'Career' },
-  { id: '4', name: 'Competitive Programming', description: 'Solve contests together', activeUsers: 143, isTrending: false, category: 'Technical' },
-  { id: '5', name: 'Movies & TV Shows', description: 'Discuss latest movies and series', activeUsers: 298, isTrending: true, category: 'Entertainment' },
-  { id: '6', name: 'Photography', description: 'Share and critique photos', activeUsers: 87, isTrending: false, category: 'Creative' },
-  { id: '7', name: 'Placements & Jobs', description: 'Job search and placement tips', activeUsers: 201, isTrending: true, category: 'Career' },
-  { id: '8', name: 'Sports', description: 'Talk about your favorite sports', activeUsers: 165, isTrending: false, category: 'Lifestyle' },
-  { id: '9', name: 'Academics', description: 'Study groups and academic help', activeUsers: 178, isTrending: false, category: 'Education' },
-  { id: '10', name: 'Videography', description: 'Video creation and editing tips', activeUsers: 92, isTrending: false, category: 'Creative' },
+  {
+    id: "1",
+    topic: "dsa",
+    name: "Data Structures & Algorithms",
+    description: "Discuss coding problems and algorithms",
+    activeUsers: 234,
+    isTrending: true,
+    category: "Technical",
+  },
+  {
+    id: "2",
+    topic: "system-design",
+    name: "System Design",
+    description: "Learn and share system design concepts",
+    activeUsers: 189,
+    isTrending: true,
+    category: "Technical",
+  },
+  {
+    id: "3",
+    topic: "sports",
+    name: "Sports",
+    description: "Talk about your favorite sports",
+    activeUsers: 165,
+    isTrending: false,
+    category: "Lifestyle",
+  },
+  {
+    id: "4",
+    topic: "mock-interviews",
+    name: "Mock Interviews",
+    description: "Practice interviews with peers",
+    activeUsers: 156,
+    isTrending: false,
+    category: "Career",
+  },
+  {
+    id: "5",
+    topic: "cp",
+    name: "Competitive Programming",
+    description: "Solve contests together",
+    activeUsers: 143,
+    isTrending: false,
+    category: "Technical",
+  },
+  {
+    id: "6",
+    topic: "movies-tv",
+    name: "Movies & TV Shows",
+    description: "Discuss latest movies and series",
+    activeUsers: 298,
+    isTrending: true,
+    category: "Entertainment",
+  },
+  {
+    id: "7",
+    topic: "photography",
+    name: "Photography",
+    description: "Share and critique photos",
+    activeUsers: 87,
+    isTrending: false,
+    category: "Creative",
+  },
+  {
+    id: "8",
+    topic: "job_preparation",
+    name: "Placements & Jobs",
+    description: "Job search and placement tips",
+    activeUsers: 201,
+    isTrending: true,
+    category: "Career",
+  },
+  {
+    id: "9",
+    topic: "academics",
+    name: "Academics",
+    description: "Study groups and academic help",
+    activeUsers: 178,
+    isTrending: false,
+    category: "Education",
+  },
+  {
+    id: "10",
+    topic: "videography",
+    name: "Videography",
+    description: "Video creation and editing tips",
+    activeUsers: 92,
+    isTrending: false,
+    category: "Creative",
+  },
 ];
 
 const SEARCH_SUGGESTIONS = [
-  'Data Structures and Algorithms...',
-  'Movies and Entertainment...',
-  'Interview Preparation...',
-  'System Design Concepts...',
-  'Photography Tips...',
-  'Sports Discussion...',
-  'Academic Help...',
-  'Job Placements...',
+  "Data Structures and Algorithms...",
+  "Movies and Entertainment...",
+  "Interview Preparation...",
+  "System Design Concepts...",
+  "Photography Tips...",
+  "Sports Discussion...",
+  "Academic Help...",
+  "Job Placements...",
 ];
 
 interface CommunitiesProps {
-  onJoinCommunity: (communityId: string) => void;
+  onJoinCommunity: (communityName: string) => void; // <-- change here!
   onBack: () => void;
 }
 
-const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) => {
+const Communities: React.FC<CommunitiesProps> = ({
+  onJoinCommunity,
+  onBack,
+}) => {
   const navigate = useNavigate();
   const { user, setUser, setToken } = useAuthStore();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
   const [showAddInterestModal, setShowAddInterestModal] = useState(false);
-  const [filteredCommunities, setFilteredCommunities] = useState(MOCK_COMMUNITIES);
+  const [filteredCommunities, setFilteredCommunities] =
+    useState(MOCK_COMMUNITIES);
 
   // Rotate search suggestions
   useEffect(() => {
@@ -61,12 +146,15 @@ const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) =>
 
   // Filter communities based on search
   useEffect(() => {
-    if (searchQuery.trim() === '') {
+    if (searchQuery.trim() === "") {
       setFilteredCommunities(MOCK_COMMUNITIES);
     } else {
-      const filtered = MOCK_COMMUNITIES.filter(community =>
-        community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        community.description.toLowerCase().includes(searchQuery.toLowerCase())
+      const filtered = MOCK_COMMUNITIES.filter(
+        (community) =>
+          community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          community.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase())
       );
       setFilteredCommunities(filtered);
     }
@@ -82,16 +170,19 @@ const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) =>
   const handleLogout = async () => {
     setUser(null);
     setToken(null);
-    navigate('/');
+    navigate("/");
   };
 
-  const totalActiveUsers = MOCK_COMMUNITIES.reduce((sum, community) => sum + community.activeUsers, 0);
+  const totalActiveUsers = MOCK_COMMUNITIES.reduce(
+    (sum, community) => sum + community.activeUsers,
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header
         user={user as User}
-        onProfileClick={() => navigate('/profile')}
+        onProfileClick={() => navigate("/profile")}
         onLogoutClick={handleLogout}
       />
 
@@ -105,12 +196,16 @@ const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) =>
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Home
           </button>
-          
+
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Find Your Community
           </h1>
           <p className="text-xl text-gray-600 mb-6">
-            Connect with <span className="font-semibold text-blue-600">{totalActiveUsers.toLocaleString()}</span> active students across different interests
+            Connect with{" "}
+            <span className="font-semibold text-blue-600">
+              {totalActiveUsers.toLocaleString()}
+            </span>{" "}
+            active students across different interests
           </p>
 
           {/* Search Bar */}
@@ -133,7 +228,7 @@ const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) =>
           {sortedCommunities.map((community) => (
             <div
               key={community.id}
-              onClick={() => onJoinCommunity(community.id)}
+              onClick={() => onJoinCommunity(community.topic)} // <-- change here!
               className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1"
             >
               {community.isTrending && (
@@ -144,22 +239,22 @@ const Communities: React.FC<CommunitiesProps> = ({ onJoinCommunity, onBack }) =>
                   </div>
                 </div>
               )}
-              
+
               <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
                 {community.name}
               </h3>
-              
+
               <p className="text-gray-600 mb-4 text-sm">
                 {community.description}
               </p>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-green-600">
                   <Users className="w-4 h-4 mr-2" />
                   <span className="font-semibold">{community.activeUsers}</span>
                   <span className="text-gray-500 ml-1">online</span>
                 </div>
-                
+
                 <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                   {community.category}
                 </span>

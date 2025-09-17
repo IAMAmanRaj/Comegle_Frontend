@@ -20,7 +20,7 @@ interface MatchingPreferences {
 
 export const Main = () => {
   const navigate = useNavigate();
-  const { user, setUser, setToken } = useAuthStore();
+  const { user, setUser, setToken,selectedCommunity,  setSelectedCommunity } = useAuthStore();
   const [localAudioTrack, setLocalAudioTrack] =
     useState<MediaStreamTrack | null>(null);
   const [localVideoTrack, setLocalVideoTrack] =
@@ -98,9 +98,16 @@ export const Main = () => {
     }
   };
 
-  const handleJoinCommunity = () => {
-    setJoined(true);
-  };
+ const handleJoinCommunity = (communityName: string) => {
+ 
+    if (setSelectedCommunity) {
+      setSelectedCommunity(communityName);
+    }
+ 
+   // socket.emit as above
+   
+  setJoined(true);
+};
 
   // const handleLeaveRoom = () => {
   //   setJoined(false);
@@ -132,6 +139,8 @@ export const Main = () => {
           collegeState: user?.college?.state || "",
           matchingPreferences: matchingPreferences,
         }}
+        topicName={selectedCommunity ?? undefined}
+
         setJoined={setJoined}
         localAudioTrack={localAudioTrack}
         localVideoTrack={localVideoTrack}
@@ -176,7 +185,7 @@ export const Main = () => {
   <div className="absolute inset-0 w-full h-full z-10 bg-black/30" /> {/* <-- change 30 to 40, 50, etc. */}
 
       <Header
-        user={mockUser as User}
+        user={user as User}
         onProfileClick={() => navigate("/profile")}
         onLogoutClick={() => setShowLogoutModal(true)}
       />
@@ -217,7 +226,7 @@ export const Main = () => {
                   console.log(matchingPreferences);
                   setJoined(true);
                 }}
-                disabled={!mockUser || !mockUser.username?.trim()}
+                disabled={!user || !user.username?.trim()}
                 className="w-full  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6"
               >
                 <Play className="w-6 h-6" />
@@ -229,10 +238,10 @@ export const Main = () => {
                 <p className="text-gray-600 mb-3 font-medium">You'll be joining as:</p>
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-gray-200">
                   <p className="font-semibold text-gray-900">
-                    @{mockUser?.username}
+                    @{user?.username}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {mockUser?.college?.name}, {mockUser?.college?.state}
+                    {user?.college?.name}, {user?.college?.state}
                   </p>
                 </div>
               </div>
