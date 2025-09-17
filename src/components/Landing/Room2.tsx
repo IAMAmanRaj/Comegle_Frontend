@@ -33,7 +33,7 @@ interface RoomProps {
 }
 
 const Room2: React.FC<RoomProps> = ({ 
-  communityId, 
+  // communityId, 
   onLeaveRoom, 
   localAudioTrack, 
   localVideoTrack,
@@ -43,7 +43,7 @@ const Room2: React.FC<RoomProps> = ({
   const [newMessage, setNewMessage] = useState('');
   const [isMuted, setIsMuted] = useState(false);
   const [isPeerMuted, setIsPeerMuted] = useState(false);
-  const [isConnected, setIsConnected] = useState(true);
+  // const [isConnected, setIsConnected] = useState(true);
   
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);

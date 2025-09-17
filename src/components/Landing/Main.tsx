@@ -2,13 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import Communities from "../communities/Communities";
 import { useAuthStore, type User } from "../../store/useAuthStore";
 import Header from "../General/Header";
-import { Play, Settings, Users, TrendingUp, ArrowRight, Camera, User as UserIcon, X } from "lucide-react";
+import { Play, Settings, Users, TrendingUp, ArrowRight, Camera, User as UserIcon } from "lucide-react";
 import LogoutModal from "./LogoutModal";
 import { api } from "../../Utils/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ConfigureMatching from "./ConfigureMatching";
-import Room2 from "./Room2";
 import Room from "./Room";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -31,7 +30,7 @@ export const Main = () => {
   const [joined, setJoined] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showCommunities, setShowCommunities] = useState(false);
-  const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
+  // Removed unused selectedCommunityId state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentTrendingIndex, setCurrentTrendingIndex] = useState(0);
 
@@ -99,15 +98,13 @@ export const Main = () => {
     }
   };
 
-  const handleJoinCommunity = (communityId: string) => {
-    setSelectedCommunityId(communityId);
+  const handleJoinCommunity = () => {
     setJoined(true);
   };
 
-  const handleLeaveRoom = () => {
-    setJoined(false);
-    setSelectedCommunityId(null);
-  };
+  // const handleLeaveRoom = () => {
+  //   setJoined(false);
+  // };
 
   const handleBackToCommunities = () => {
     setShowCommunities(false);
