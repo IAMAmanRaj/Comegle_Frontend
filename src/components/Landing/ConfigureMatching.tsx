@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { X, Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface ConfigureMatchingProps {
-  isOpen: boolean;
   onClose: () => void;
   currentPreferences: {
     selectedStates: string[] | "*";
@@ -19,60 +19,22 @@ interface ConfigureMatchingProps {
 }
 
 const ALL_STATES = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-
-  // Union Territories
-  "Andaman and Nicobar Islands",
-  "Chandigarh",
-  "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi",
-  "Jammu and Kashmir",
-  "Ladakh",
-  "Lakshadweep",
-  "Puducherry",
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
 const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
-  isOpen,
   onClose,
   currentPreferences,
   onSave,
 }) => {
-  const [selectedStates, setSelectedStates] = useState(
-    currentPreferences.selectedStates
-  );
-  const [preferredGender, setPreferredGender] = useState(
-    currentPreferences.preferredGender
-  );
-
-  if (!isOpen) return null;
+  const [selectedStates, setSelectedStates] = useState(currentPreferences.selectedStates);
+  const [preferredGender, setPreferredGender] = useState(currentPreferences.preferredGender);
 
   const toggleState = (state: string) => {
     setSelectedStates((prev) => {
@@ -85,18 +47,12 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
     });
   };
 
-  const selectAll = () => {
-    setSelectedStates(ALL_STATES);
-  };
-
-  const clearAll = () => {
-    setSelectedStates([]);
-  };
+  const selectAll = () => setSelectedStates(ALL_STATES);
+  const clearAll = () => setSelectedStates([]);
 
   const handleSave = () => {
     onSave({
-      selectedStates:
-        selectedStates.length === ALL_STATES.length ? "*" : selectedStates,
+      selectedStates: selectedStates.length === ALL_STATES.length ? "*" : selectedStates,
       country: currentPreferences.country,
       collegeState: currentPreferences.collegeState,
       preferredGender,
@@ -105,8 +61,20 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col">
+    <motion.div
+      className="fixed inset-0 z-[50] bg-black/70 backdrop-blur-[2px] flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      <motion.div
+        className="bg-white rounded-lg border-black border w-full max-w-2xl max-h-[80vh] flex flex-col"
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        transition={{ duration: 0.23, ease: "easeOut" }}
+      >
         {/* Header */}
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <div>
@@ -120,14 +88,15 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+            className="p-1 hover:bg-gray-100 hover:cursor-pointer hover:scale-125 transition-all duration-300 rounded"
           >
-            <X className="w-6 h-6 text-gray-500" />
+            <X className="w-6 h-6  text-gray-500" />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-8 overflow-y-auto custom-scrollbar-faq flex-1"
+        >
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-medium text-gray-900">All Regions</h3>
@@ -146,8 +115,6 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                 </button>
               </div>
             </div>
-
-            {/* States Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {ALL_STATES.map((state) => (
                 <button
@@ -161,8 +128,7 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{state}</span>
-                    {selectedStates.includes(state) ||
-                    selectedStates === "*" ? (
+                    {selectedStates.includes(state) || selectedStates === "*" ? (
                       <Check className="w-4 h-4 text-blue-600" />
                     ) : null}
                   </div>
@@ -208,10 +174,8 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                     +{ALL_STATES.length - 10} more
                   </span>
                 )}
-
               </div>
             )}
-    
           </div>
 
           {/* Gender Selection */}
@@ -221,9 +185,7 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
               {["male", "female", "any"].map((gender) => (
                 <button
                   key={gender}
-                  onClick={() =>
-                    setPreferredGender(gender as "male" | "female" | "any")
-                  }
+                  onClick={() => setPreferredGender(gender as "male" | "female" | "any")}
                   className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
                     preferredGender === gender
                       ? "bg-blue-50 border-blue-500 text-blue-900"
@@ -237,23 +199,23 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        {/* Footer with blur effect */}
+        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-white/60 backdrop-blur-lg">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            className="px-4 py-2 text-gray-700 border hover:cursor-pointer border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="px-4 py-2 bg-blue-600 text-white hover:cursor-pointer rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
             Save Preferences
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
