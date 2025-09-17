@@ -211,10 +211,6 @@ const Room = ({
       });
     });
 
-    socket.on("lobby", () => {
-      setLobby(true);
-    });
-
     socket.on("add-ice-candidate", ({ candidate, type }) => {
       if (type === "sender") {
         setReceivingPc((pc) => {
