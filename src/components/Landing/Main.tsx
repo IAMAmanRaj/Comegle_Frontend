@@ -88,6 +88,7 @@ export const Main = () => {
       videoRef.current.srcObject = new MediaStream([videoTrack]);
       videoRef.current.play();
     }
+    
   };
 
   const handleSidebarToggle = () => {
@@ -208,7 +209,7 @@ export const Main = () => {
         <div className="flex-1 flex items-center justify-center px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl w-full">
             {/* Quick Connect Card */}
-            <div className="bg-white/90 backdrop-blur-sm  p-8 rounded-2xl shadow-xl border border-gray-200">
+            <div className="bg-white/90 backdrop-blur-sm  p-8 h-[90%] mt-4 rounded-2xl shadow-xl border border-gray-200">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
                 Quick Connect
               </h2>
@@ -221,17 +222,7 @@ export const Main = () => {
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               </div>
 
-              <button
-                onClick={() => {
-                  console.log(matchingPreferences);
-                  setJoined(true);
-                }}
-                disabled={!user || !user.username?.trim()}
-                className="w-full  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6"
-              >
-                <Play className="w-6 h-6" />
-                <span>Start Quick Chat</span>
-              </button>
+    
 
               {/* You'll be joining as */}
               <div className="mb-4">
@@ -254,10 +245,22 @@ export const Main = () => {
                 <Settings className="w-5 h-5 " />
                 <span>Configure Matching</span>
               </button>
+
+                        <button
+                onClick={() => {
+                  console.log(matchingPreferences);
+                  setJoined(true);
+                }}
+                disabled={!user || !user.username?.trim()}
+                className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6"
+              >
+                <Play className="w-6 h-6" />
+                <span>Start Quick Chat</span>
+              </button>
             </div>
 
             {/* Community Connect Card - Main Highlight */}
-            <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-8 rounded-2xl shadow-2xl text-white relative overflow-hidden transform scale-100">
+            <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-8 rounded-2xl h-[90%] mt-4 shadow-2xl text-white relative overflow-hidden transform scale-100">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
               
@@ -329,8 +332,8 @@ export const Main = () => {
         </div>
 
         {/* How it Works - Bottom Center */}
-        <div className="pb-3 flex justify-center">
-          <div className="bg-white/80 backdrop-blur-sm p-6 pt-2 pb-2 rounded-2xl border border-gray-200 shadow-lg max-w-2xl">
+        <div className="pb-3 flex justify-center h-[170px]">
+          <div className="bg-white/80 backdrop-blur-sm p-6 pt-2 pb-2 rounded-2xl border border-gray-200 shadow-lg max-w-3xl mb-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
               How it works
             </h3>
