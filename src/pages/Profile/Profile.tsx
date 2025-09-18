@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CountryDropdown } from '@/components/ui/CountrySelect';
 import TagsInput from '@/components/ui/TagsInput';
-import { useAuthStore, type User } from "../../store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 interface ProfileData {
   avatar_url: string;
