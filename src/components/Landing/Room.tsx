@@ -3,8 +3,11 @@ import { Socket, io } from "socket.io-client";
 
 const ICE_SERVERS = [
   { urls: "stun:stun.l.google.com:19302" },
-  // For production, add a TURN server here for guaranteed relay:
-  // { urls: "turn:your.turn.server:3478", username: "username", credential: "password" }
+  {
+    urls: "turn:relay1.expressturn.com:3480",
+    username: "000000002073404205",
+    credential: "53dym495ky60Cp7PciYJEBmda9s="
+  }
 ];
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
