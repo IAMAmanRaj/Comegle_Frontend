@@ -119,11 +119,11 @@ const Room = ({
 
     if (topicName) {
       socket.on(`user-count-${topicName}`, (data) => {
-        setUserCount(data.count);
+        setUserCount(data);
       });
     } else {
       socket.on("user-count", (data) => {
-        setUserCount(data.count);
+        setUserCount(data);
       });
     }
 
