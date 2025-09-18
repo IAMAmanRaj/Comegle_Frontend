@@ -23,7 +23,7 @@ interface AuthState {
   selectedCommunity: string | null; // <- persisted community name
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
-  setSelectedCommunity?: (community: string | null) => void; // <- setter
+  setSelectedCommunity: (community: string | null) => void; // <- setter
   reset: () => void;
   _hydrated: boolean; // internal flag to know when rehydration finished
   setHydrated: () => void;

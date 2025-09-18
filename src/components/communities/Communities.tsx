@@ -25,15 +25,15 @@ const MOCK_COMMUNITIES: Community[] = [
     isTrending: true,
     category: "Technical",
   },
-  {
-    id: "2",
-    topic: "system-design",
-    name: "System Design",
-    description: "Learn and share system design concepts",
-    activeUsers: 189,
-    isTrending: true,
-    category: "Technical",
-  },
+  // {
+  //   id: "2",
+  //   topic: "system-design",
+  //   name: "System Design",
+  //   description: "Learn and share system design concepts",
+  //   activeUsers: 189,
+  //   isTrending: true,
+  //   category: "Technical",
+  // },
   {
     id: "3",
     topic: "sports",
@@ -43,15 +43,15 @@ const MOCK_COMMUNITIES: Community[] = [
     isTrending: false,
     category: "Lifestyle",
   },
-  {
-    id: "4",
-    topic: "mock-interviews",
-    name: "Mock Interviews",
-    description: "Practice interviews with peers",
-    activeUsers: 156,
-    isTrending: false,
-    category: "Career",
-  },
+  // {
+  //   id: "4",
+  //   topic: "mock-interviews",
+  //   name: "Mock Interviews",
+  //   description: "Practice interviews with peers",
+  //   activeUsers: 156,
+  //   isTrending: false,
+  //   category: "Career",
+  // },
   {
     id: "5",
     topic: "cp",
@@ -61,51 +61,51 @@ const MOCK_COMMUNITIES: Community[] = [
     isTrending: false,
     category: "Technical",
   },
-  {
-    id: "6",
-    topic: "movies-tv",
-    name: "Movies & TV Shows",
-    description: "Discuss latest movies and series",
-    activeUsers: 298,
-    isTrending: true,
-    category: "Entertainment",
-  },
-  {
-    id: "7",
-    topic: "photography",
-    name: "Photography",
-    description: "Share and critique photos",
-    activeUsers: 87,
-    isTrending: false,
-    category: "Creative",
-  },
-  {
-    id: "8",
-    topic: "job_preparation",
-    name: "Placements & Jobs",
-    description: "Job search and placement tips",
-    activeUsers: 201,
-    isTrending: true,
-    category: "Career",
-  },
-  {
-    id: "9",
-    topic: "academics",
-    name: "Academics",
-    description: "Study groups and academic help",
-    activeUsers: 178,
-    isTrending: false,
-    category: "Education",
-  },
-  {
-    id: "10",
-    topic: "videography",
-    name: "Videography",
-    description: "Video creation and editing tips",
-    activeUsers: 92,
-    isTrending: false,
-    category: "Creative",
-  },
+  // {
+  //   id: "6",
+  //   topic: "movies-tv",
+  //   name: "Movies & TV Shows",
+  //   description: "Discuss latest movies and series",
+  //   activeUsers: 298,
+  //   isTrending: true,
+  //   category: "Entertainment",
+  // },
+  // {
+  //   id: "7",
+  //   topic: "photography",
+  //   name: "Photography",
+  //   description: "Share and critique photos",
+  //   activeUsers: 87,
+  //   isTrending: false,
+  //   category: "Creative",
+  // },
+  // {
+  //   id: "8",
+  //   topic: "job_preparation",
+  //   name: "Placements & Jobs",
+  //   description: "Job search and placement tips",
+  //   activeUsers: 201,
+  //   isTrending: true,
+  //   category: "Career",
+  // },
+  // {
+  //   id: "9",
+  //   topic: "academics",
+  //   name: "Academics",
+  //   description: "Study groups and academic help",
+  //   activeUsers: 178,
+  //   isTrending: false,
+  //   category: "Education",
+  // },
+  // {
+  //   id: "10",
+  //   topic: "videography",
+  //   name: "Videography",
+  //   description: "Video creation and editing tips",
+  //   activeUsers: 92,
+  //   isTrending: false,
+  //   category: "Creative",
+  // },
 ];
 
 const SEARCH_SUGGESTIONS = [
@@ -122,14 +122,17 @@ const SEARCH_SUGGESTIONS = [
 interface CommunitiesProps {
   onJoinCommunity: (communityName: string) => void; // <-- change here!
   onBack: () => void;
+  totalCommunityCount: number;
+  communitySpecificUserCount: Record<string, number>;
 }
 
 const Communities: React.FC<CommunitiesProps> = ({
   onJoinCommunity,
   onBack,
+  totalCommunityCount,
+  communitySpecificUserCount,
 }) => {
   const navigate = useNavigate();
-  const { user, setUser, setToken } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
   const [showAddInterestModal, setShowAddInterestModal] = useState(false);
@@ -167,25 +170,8 @@ const Communities: React.FC<CommunitiesProps> = ({
     return b.activeUsers - a.activeUsers;
   });
 
-  const handleLogout = async () => {
-    setUser(null);
-    setToken(null);
-    navigate("/");
-  };
-
-  const totalActiveUsers = MOCK_COMMUNITIES.reduce(
-    (sum, community) => sum + community.activeUsers,
-    0
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Header
-        user={user as User}
-        onProfileClick={() => navigate("/profile")}
-        onLogoutClick={handleLogout}
-      />
-
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -203,7 +189,7 @@ const Communities: React.FC<CommunitiesProps> = ({
           <p className="text-xl text-gray-600 mb-6">
             Connect with{" "}
             <span className="font-semibold text-blue-600">
-              {totalActiveUsers.toLocaleString()}
+              {totalCommunityCount}
             </span>{" "}
             active students across different interests
           </p>
@@ -251,7 +237,9 @@ const Communities: React.FC<CommunitiesProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-green-600">
                   <Users className="w-4 h-4 mr-2" />
-                  <span className="font-semibold">{community.activeUsers}</span>
+                  <span className="font-semibold">
+                    {communitySpecificUserCount[community.topic]}
+                  </span>
                   <span className="text-gray-500 ml-1">online</span>
                 </div>
 
