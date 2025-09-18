@@ -356,13 +356,13 @@ const Room = ({
     }
   };
 
-  const toggleRemoteAudio = () => {
-    if (remoteAudioRef.current) {
-      const isMuted = !remoteMuted;
-      remoteAudioRef.current.muted = isMuted;
-      setRemoteMuted(isMuted);
-    }
-  };
+  // const toggleRemoteAudio = () => {
+  //   if (remoteAudioRef.current) {
+  //     const isMuted = !remoteMuted;
+  //     remoteAudioRef.current.muted = isMuted;
+  //     setRemoteMuted(isMuted);
+  //   }
+  // };
 
   // Send chat message to peer
   const sendChatMessage = () => {
