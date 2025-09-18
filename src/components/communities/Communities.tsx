@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Search, TrendingUp, Users, ArrowLeft, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore, type User } from "../../store/useAuthStore";
-import Header from "../General/Header";
 import AddInterestModal from "./AddInterestModal";
 
 interface Community {
@@ -132,7 +129,6 @@ const Communities: React.FC<CommunitiesProps> = ({
   totalCommunityCount,
   communitySpecificUserCount,
 }) => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
   const [showAddInterestModal, setShowAddInterestModal] = useState(false);
