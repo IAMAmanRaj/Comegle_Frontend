@@ -1,34 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MdHome, MdEdit, MdSave, MdCancel } from 'react-icons/md';
-import { IoEye, IoImage } from 'react-icons/io5';
-import { FaBriefcase, FaUser, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
-import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CountryDropdown } from '@/components/ui/CountrySelect';
-import TagsInput from '@/components/ui/TagsInput';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MdHome, MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { IoEye, IoImage } from "react-icons/io5";
+import {
+  FaBriefcase,
+  FaUser,
+  FaEnvelope,
+  FaMapMarkedAlt,
+} from "react-icons/fa";
+import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CountryDropdown } from "@/components/ui/CountrySelect";
+import TagsInput from "@/components/ui/TagsInput";
 import { useAuthStore } from "../../store/useAuthStore";
+import { api } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 interface ProfileData {
   avatar_url: string;
   username: string;
-  firstName: string;
-  lastName: string;
   fullName: string;
   collegeName: string;
   email: string;
-  state: string;
   country: string;
+  state: string;
   gender: string;
   bio: string;
-  pronouns: string;
   tags: string[];
   socialLinks: {
-    linkedin: string;
+    linked_in: string;
     twitter: string;
     instagram: string;
   };
@@ -36,59 +52,38 @@ interface ProfileData {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
+  const [isEditing, setIsEditing] = useState(false);
 
-  // Set profileData based on user from authStore
-  const initialProfileData: ProfileData = {
-    avatar_url: user?.avatar_url || 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    username: user?.username || 'alex_chen',
-    firstName: user?.full_name?.split(" ")[0] || 'Alex',
-    lastName: user?.full_name?.split(" ").slice(1).join(" ") || 'Chen',
-    fullName: user?.full_name || 'Alex Chen',
-    collegeName: user?.college?.name || 'Stanford University',
-    email: user?.email || 'alex.chen@example.com',
-    state: user?.college?.state || 'California',
-    country: user?.college?.country || 'USA',
-    gender: user?.gender || 'non-binary',
-    bio: 'Computer Science student passionate about AI and machine learning. Love connecting with people worldwide!',
-    pronouns: 'they/them',
-    tags: ['Machine Learning', 'AI', 'React', 'TypeScript', 'Computer Science'],
+  // Use user from Zustand as the single source of truth for profile data
+  const profileData: ProfileData = {
+    avatar_url: user?.avatar_url || "",
+    username: user?.username || "",
+    fullName: user?.full_name || "",
+    collegeName: user?.college?.name || "",
+    email: user?.email || "",
+    state: user?.college?.state || "",
+    country: user?.college?.country || "India",
+    gender: user?.gender || "",
+    bio: user?.bio || "",
+    tags: user?.tags || [],
     socialLinks: {
-      linkedin: '',
-      twitter: '',
-      instagram: ''
-    }
+      linked_in: user?.socialLinks?.linked_in || "",
+      twitter: user?.socialLinks?.twitter || "",
+      instagram: user?.socialLinks?.instagram || "",
+    },
   };
 
-  const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
+  // Local edit data only for edit mode, initialized from Zustand user
   const [editData, setEditData] = useState<ProfileData>(profileData);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Sync profileData with authStore user, when user changes
-    setProfileData({
-      avatar_url: user?.avatar_url || 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-      username: user?.username || 'alex_chen',
-      firstName: user?.full_name?.split(" ")[0] || 'Alex',
-      lastName: user?.full_name?.split(" ").slice(1).join(" ") || 'Chen',
-      fullName: user?.full_name || 'Alex Chen',
-      collegeName: user?.college?.name || 'Stanford University',
-      email: user?.email || 'alex.chen@example.com',
-      state: user?.college?.state || 'California',
-      country: user?.college?.country || 'USA',
-      gender: user?.gender || 'non-binary',
-      bio: profileData.bio,
-      pronouns: profileData.pronouns,
-      tags: profileData.tags,
-      socialLinks: profileData.socialLinks
-    });
     setEditData(profileData);
     // eslint-disable-next-line
   }, [user]);
 
   const handleBack = () => {
-    navigate('/landing');
+    navigate("/landing");
   };
 
   const handleEditProfile = () => {
@@ -96,12 +91,68 @@ const ProfilePage: React.FC = () => {
     setIsEditing(true);
   };
 
-  const handleSaveProfile = async () => {
-    setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-    setProfileData(editData);
-    setIsSaving(false);
-    setIsEditing(false);
+  // React Query mutation for saving profile
+  const { mutate: saveProfile } = useMutation({
+      mutationFn: async (data: ProfileData) => {
+          
+           // Validate required fields
+    if (!data.username?.trim() || !data.fullName?.trim() || !data.gender?.trim()) {
+        toast.error("Username, Full Name, and Gender are required.");
+        return;
+      throw new Error("Missing required profile fields.");
+          }
+          
+      // Show loading toast (returns an id to update later)
+      const toastId = toast.loading("Saving profile...");
+      try {
+        // Build payload as per backend expects
+        const payload: any = {
+          avatar_url: data.avatar_url,
+          username: data.username,
+          full_name: data.fullName,
+          gender: data.gender,
+            country: data.country,
+            bio: data.bio,
+            tags: data.tags,
+            socials: { ...data.socialLinks },
+        };
+       
+        const res = await api.post("/user/save", payload);
+          toast.dismiss(toastId);
+          console.log("Profile save response:", res.data.user);
+        setUser(res.data.user);
+        return res.data;
+      } catch (error: any) {
+        toast.dismiss(toastId);
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setUser({
+          ...user,
+          avatar_url: data.user.avatar_url,
+          username: data.user.username,
+          full_name: data.user.full_name,
+          gender: data.user.gender,
+          country: data.user.country,
+          bio: data.user.bio,
+          tags: data.user.tags,
+          socialLinks: data.user.socialLinks,
+        });
+        setIsEditing(false);
+        toast.success("Profile updated successfully!");
+      } else {
+        toast.error(data.message || "Failed to update profile.");
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Error saving profile.");
+    },
+  });
+
+  const handleSaveProfile = () => {
+    saveProfile(editData);
   };
 
   const handleCancelEdit = () => {
@@ -110,65 +161,41 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
-    if (field === 'firstName' || field === 'lastName') {
-      const newData = { ...editData, [field]: value };
-      newData.fullName = `${newData.firstName} ${newData.lastName}`;
-      setEditData(newData);
-    } else {
-      setEditData(prev => ({ ...prev, [field]: value }));
-    }
+    setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSocialLinkChange = (platform: keyof ProfileData['socialLinks'], value: string) => {
-    setEditData(prev => ({
+  const handleSocialLinkChange = (
+    platform: keyof ProfileData["socialLinks"],
+    value: string
+  ) => {
+    setEditData((prev) => ({
       ...prev,
-      socialLinks: { ...prev.socialLinks, [platform]: value }
+      socialLinks: { ...prev.socialLinks, [platform]: value },
     }));
   };
 
-  const handleTagsChange = (tags: string[]) => {
-    setEditData(prev => ({ ...prev, tags }));
+    const handleTagsChange = (tags: string[]) => {
+      console.log("Updated tags:", tags);
+    setEditData((prev) => ({ ...prev, tags }));
   };
 
   const handleCountryChange = (countryCode: string) => {
-    setEditData(prev => ({ ...prev, country: countryCode }));
+    setEditData((prev) => ({ ...prev, country: countryCode }));
   };
 
-  // Keyboard listener for Enter key on Save button
+  // Remove isSaving from useEffect dependency
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && isEditing && !isSaving) {
+      if (e.key === "Enter" && isEditing) {
         e.preventDefault();
         handleSaveProfile();
       }
     };
     if (isEditing) {
-      document.addEventListener('keydown', handleKeyPress);
-      return () => document.removeEventListener('keydown', handleKeyPress);
+      document.addEventListener("keydown", handleKeyPress);
+      return () => document.removeEventListener("keydown", handleKeyPress);
     }
-  }, [isEditing, isSaving]);
-
-  const getCountryLabel = (country: string) => {
-    // You can expand this list as needed
-    const countries = [
-      { value: 'USA', label: 'United States', flag: '🇺🇸' },
-      { value: 'UK', label: 'United Kingdom', flag: '🇬🇧' },
-      { value: 'Canada', label: 'Canada', flag: '🇨🇦' },
-      { value: 'Australia', label: 'Australia', flag: '🇦🇺' },
-      { value: 'Germany', label: 'Germany', flag: '🇩🇪' },
-      { value: 'France', label: 'France', flag: '🇫🇷' },
-      { value: 'Japan', label: 'Japan', flag: '🇯🇵' },
-      { value: 'India', label: 'India', flag: '🇮🇳' },
-      { value: 'Brazil', label: 'Brazil', flag: '🇧🇷' },
-      { value: 'Mexico', label: 'Mexico', flag: '🇲🇽' },
-      { value: 'Italy', label: 'Italy', flag: '🇮🇹' },
-      { value: 'Spain', label: 'Spain', flag: '🇪🇸' },
-      { value: 'Netherlands', label: 'Netherlands', flag: '🇳🇱' },
-      { value: 'Sweden', label: 'Sweden', flag: '🇸🇪' },
-    ];
-    const countryObj = countries.find(c => c.value === country);
-    return countryObj ? countryObj.label : country;
-  };
+  }, [isEditing]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -203,11 +230,10 @@ const ProfilePage: React.FC = () => {
               </Button>
               <Button
                 onClick={handleSaveProfile}
-                disabled={isSaving}
                 className="flex items-center space-x-2 bg-green-600 hover:bg-green-700"
               >
                 <MdSave size={16} />
-                <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+                <span>Save Changes</span>
               </Button>
             </div>
           )}
@@ -252,9 +278,15 @@ const ProfilePage: React.FC = () => {
           <div className="space-y-8">
             {/* Bio Section */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{profileData.fullName}</h1>
-              <p className="text-lg text-gray-600 mb-4">@{profileData.username}</p>
-              <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed mb-6">{profileData.bio}</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {profileData.fullName}
+              </h1>
+              <p className="text-lg text-gray-600 mb-4">
+                @{profileData.username}
+              </p>
+              <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed mb-6">
+                {profileData.bio}
+              </p>
               {/* Tags Display */}
               {profileData.tags.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-2 mb-4">
@@ -279,7 +311,9 @@ const ProfilePage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">College</p>
-                    <p className="font-semibold text-gray-900">{profileData.collegeName}</p>
+                    <p className="font-semibold text-gray-900">
+                      {profileData.collegeName}
+                    </p>
                   </div>
                 </div>
 
@@ -289,7 +323,9 @@ const ProfilePage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Gender</p>
-                    <p className="font-semibold text-gray-900 capitalize">{profileData.gender}</p>
+                    <p className="font-semibold text-gray-900 capitalize">
+                      {profileData.gender}
+                    </p>
                   </div>
                 </div>
 
@@ -299,17 +335,20 @@ const ProfilePage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-semibold text-gray-900">{profileData.email}</p>
+                    <p className="font-semibold text-gray-900">
+                      {profileData.email}
+                    </p>
                   </div>
                 </div>
-
                 <div className="flex items-center space-x-3">
                   <div className="bg-orange-100 p-2 rounded-lg">
-                    <FaMapMarkerAlt className="text-orange-600" size={20} />
+                    <FaMapMarkedAlt className="text-orange-600" size={20} />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Location</p>
-                    <p className="font-semibold text-gray-900">{profileData.state}, {getCountryLabel(profileData.country)}</p>
+                    <p className="font-semibold text-gray-900">
+                      {profileData.state}, {profileData.country}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -317,22 +356,41 @@ const ProfilePage: React.FC = () => {
 
             {/* Social Links */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Social Links</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                Social Links
+              </h3>
               <div className="flex justify-center space-x-6">
-                {profileData.socialLinks.linkedin && (
-                  <a href={profileData.socialLinks.linkedin} className="bg-blue-100 hover:bg-blue-200 p-3 rounded-lg transition-colors">
-                    <FaLinkedin className="text-blue-600" size={24} />
-                  </a>
-                )}
-                {profileData.socialLinks.twitter && (
-                  <a href={profileData.socialLinks.twitter} className="bg-sky-100 hover:bg-sky-200 p-3 rounded-lg transition-colors">
-                    <FaTwitter className="text-sky-600" size={24} />
-                  </a>
-                )}
-                {profileData.socialLinks.instagram && (
-                  <a href={profileData.socialLinks.instagram} className="bg-pink-100 hover:bg-pink-200 p-3 rounded-lg transition-colors">
-                    <FaInstagram className="text-pink-600" size={24} />
-                  </a>
+                {!profileData.socialLinks.linked_in &&
+                !profileData.socialLinks.twitter &&
+                !profileData.socialLinks.instagram ? (
+                  <p className="text-gray-500">No social links added yet.</p>
+                ) : (
+                  <>
+                    {profileData.socialLinks.linked_in && (
+                      <a
+                        href={profileData.socialLinks.linked_in}
+                        className="bg-blue-100 hover:bg-blue-200 p-3 rounded-lg transition-colors"
+                      >
+                        <FaLinkedin className="text-blue-600" size={24} />
+                      </a>
+                    )}
+                    {profileData.socialLinks.twitter && (
+                      <a
+                        href={profileData.socialLinks.twitter}
+                        className="bg-sky-100 hover:bg-sky-200 p-3 rounded-lg transition-colors"
+                      >
+                        <FaTwitter className="text-sky-600" size={24} />
+                      </a>
+                    )}
+                    {profileData.socialLinks.instagram && (
+                      <a
+                        href={profileData.socialLinks.instagram}
+                        className="bg-pink-100 hover:bg-pink-200 p-3 rounded-lg transition-colors"
+                      >
+                        <FaInstagram className="text-pink-600" size={24} />
+                      </a>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -342,61 +400,46 @@ const ProfilePage: React.FC = () => {
           <div className="space-y-8">
             {/* Basic Profile Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Basic Profile</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                Basic Profile
+              </h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Username
+                  </label>
                   <Input
                     type="text"
                     value={editData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("username", e.target.value)
+                    }
                     className="h-12"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Personal Pronouns</label>
-                  <Select value={editData.pronouns} onValueChange={(value) => handleInputChange('pronouns', value)}>
-                    <SelectTrigger className="h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="he/him">he/him</SelectItem>
-                      <SelectItem value="she/her">she/her</SelectItem>
-                      <SelectItem value="they/them">they/them</SelectItem>
-                      <SelectItem value="prefer not to say">prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
                   <Input
                     type="text"
-                    value={editData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    value={editData.fullName}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                     className="h-12"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                  <Input
-                    type="text"
-                    value={editData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="h-12"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">College Name</label>
-                  <Input
-                    type="text"
-                    value={editData.collegeName}
-                    onChange={(e) => handleInputChange('collegeName', e.target.value)}
-                    className="h-12"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                  <Select value={editData.gender} onValueChange={(value) => handleInputChange('gender', value)}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gender
+                  </label>
+                  <Select
+                    value={editData.gender}
+                    onValueChange={(value) =>
+                      handleInputChange("gender", value)
+                    }
+                  >
                     <SelectTrigger className="h-12">
                       <SelectValue />
                     </SelectTrigger>
@@ -404,42 +447,43 @@ const ProfilePage: React.FC = () => {
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
                       <SelectItem value="non-binary">Non-binary</SelectItem>
-                      <SelectItem value="prefer not to say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer not to say">
+                        Prefer not to say
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Country
+                  </label>
                   <CountryDropdown
                     placeholder="Select country"
                     defaultValue={editData.country}
                     onChange={(country) => handleCountryChange(country.alpha3)}
                   />
                 </div>
+
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State/Province</label>
-                  <Input
-                    type="text"
-                    value={editData.state}
-                    onChange={(e) => handleInputChange('state', e.target.value)}
-                    className="h-12"
-                    placeholder="Enter your state or province"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags/Interests</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags/Interests
+                  </label>
                   <TagsInput
                     tags={editData.tags}
                     onChange={handleTagsChange}
                     placeholder="Add your interests and skills (press Enter to add)"
                   />
-                  <p className="text-sm text-gray-500 mt-1">Press Enter to add tags. Click × to remove them.</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Press Enter to add tags. Click × to remove them.
+                  </p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Brief Bio</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Brief Bio
+                  </label>
                   <Textarea
                     value={editData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    onChange={(e) => handleInputChange("bio", e.target.value)}
                     rows={4}
                     className="resize-none"
                     placeholder="Tell us about yourself..."
@@ -449,7 +493,9 @@ const ProfilePage: React.FC = () => {
             </div>
             {/* Social Links Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Social Media Links</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                Social Media Links
+              </h3>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="bg-blue-100 p-2 rounded-lg">
@@ -457,8 +503,10 @@ const ProfilePage: React.FC = () => {
                   </div>
                   <Input
                     type="url"
-                    value={editData.socialLinks.linkedin}
-                    onChange={(e) => handleSocialLinkChange('linkedin', e.target.value)}
+                    value={editData.socialLinks.linked_in}
+                    onChange={(e) =>
+                      handleSocialLinkChange("linked_in", e.target.value)
+                    }
                     placeholder="LinkedIn profile URL"
                     className="flex-1 h-12"
                   />
@@ -470,7 +518,9 @@ const ProfilePage: React.FC = () => {
                   <Input
                     type="url"
                     value={editData.socialLinks.twitter}
-                    onChange={(e) => handleSocialLinkChange('twitter', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialLinkChange("twitter", e.target.value)
+                    }
                     placeholder="Twitter profile URL"
                     className="flex-1 h-12"
                   />
@@ -482,7 +532,9 @@ const ProfilePage: React.FC = () => {
                   <Input
                     type="url"
                     value={editData.socialLinks.instagram}
-                    onChange={(e) => handleSocialLinkChange('instagram', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialLinkChange("instagram", e.target.value)
+                    }
                     placeholder="Instagram profile URL"
                     className="flex-1 h-12"
                   />

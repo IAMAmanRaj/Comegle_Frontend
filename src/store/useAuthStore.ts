@@ -2,12 +2,16 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface User {
+  id?: string;
   full_name?: string;
   username?: string;
   email?: string;
   gender?: string;
+  country?: string;
   age?: number;
   avatar_url?: string;
+  bio?: string;
+  tags?: string[];
   college?: {
     id: string;
     name: string;
@@ -15,17 +19,22 @@ export interface User {
     country?: string;
     state?: string;
   };
+  socialLinks?: {
+    linked_in?: string;
+    twitter?: string;
+    instagram?: string;
+  };
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
-  selectedCommunity: string | null; // <- persisted community name
+  selectedCommunity: string | null;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
-  setSelectedCommunity: (community: string | null) => void; // <- setter
+  setSelectedCommunity: (community: string | null) => void;
   reset: () => void;
-  _hydrated: boolean; // internal flag to know when rehydration finished
+  _hydrated: boolean;
   setHydrated: () => void;
 }
 
@@ -43,16 +52,15 @@ export const useAuthStore = create<AuthState>()(
       setHydrated: () => set({ _hydrated: true }),
     }),
     {
-      name: "auth-storage", // key in storage
-      storage: createJSONStorage(() => localStorage), // default is localStorage; can swap to sessionStorage
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         token: state.token,
         user: state.user,
-        selectedCommunity: state.selectedCommunity, // persist the community name
+        selectedCommunity: state.selectedCommunity,
       }),
       version: 1,
       onRehydrateStorage: () => (state) => {
-        // runs after rehydration
         state?.setHydrated();
       },
     }

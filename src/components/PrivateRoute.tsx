@@ -27,7 +27,7 @@ export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
         if (cancelled) return;
 
         if (res.data?.success) {
-          const { user, accessToken } = res.data.data;
+          const { user, accessToken } = res.data;
           setUser(user);
           setToken(accessToken);
         } else {
@@ -44,6 +44,11 @@ export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
           handleAuthFailure(message);
           return;
         } else {
+
+          console.log("PrivateRoute - Unknown error:", err);
+          console.log("Status:", status);
+          console.log("Message:", message);
+          // Generic error handling
           toast.dismiss();
           toast.error("Failed to establish session");
           logoutAndRedirect();
