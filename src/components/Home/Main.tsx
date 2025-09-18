@@ -1,7 +1,7 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { api } from "../../Utils/api";
+import { api } from "@/lib/utils";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,6 @@ const Main = () => {
   const navigate = useNavigate();
 
   //addLoading State using UseMutation and embed it in the code to toggle signing in... button UI state
-  
 
   const mutation = useMutation({
     mutationFn: async (credential: string) => {
@@ -21,7 +20,6 @@ const Main = () => {
     onSuccess: (response) => {
       // ✅ Redirect logic
       if (response.message.includes("already exists")) {
-      
         // ✅ Save user in zustand
         setUser(response.data.user);
         setToken(response.data.accessToken);
@@ -59,11 +57,12 @@ const Main = () => {
           </div>
         ) : (
           <GoogleLogin
-            onSuccess={(res) => res.credential && mutation.mutate(res.credential)}
+            onSuccess={(res) =>
+              res.credential && mutation.mutate(res.credential)
+            }
             onError={() => toast.error("Google Login Failed")}
           />
         )}
-
       </div>
 
       <p className="mt-6 text-lg text-white/90 text-center">

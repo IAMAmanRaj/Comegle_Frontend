@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { api } from "../Utils/api";
+import { api } from "@/lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
 import { toast } from "react-hot-toast";
 import type { AxiosError } from "axios";
@@ -9,7 +9,7 @@ export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
   children,
 }) => {
   //destructure token and setUser and setToken in one line
-  
+
   const token = useAuthStore((s) => s.token);
   const setUser = useAuthStore((s) => s.setUser);
   const setToken = useAuthStore((s) => s.setToken);
@@ -27,7 +27,7 @@ export const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({
         if (cancelled) return;
 
         if (res.data?.success) {
-          const { user,accessToken } = res.data.data;
+          const { user, accessToken } = res.data.data;
           setUser(user);
           setToken(accessToken);
         } else {

@@ -12,14 +12,13 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import LogoutModal from "./LogoutModal";
-import { api } from "../../Utils/api";
+import { api } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ConfigureMatching from "./ConfigureMatching";
 import Room from "./Room";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
-import { set } from "zod";
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
@@ -264,17 +263,19 @@ export const Main = () => {
               <div className="flex items-center justify-between mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
                 <div className="flex items-center  hover:cursor-pointer">
                   <Users className="w-5 h-5 text-green-600 mr-2" />
-              {/* if user count is more than 1 then show students else show join in and let other's know you're here */}
-              {userCountData?.general >= 1 ? (
-                <span className="text-green-800 font-semibold">
-                  {userCountData?.general} {userCountData?.general > 1 ? "students" : "student"} online
-                </span>
-              ) : (
-                <span className="text-green-800 font-semibold text-sm">
-                  Join in and let others know you're here
-                </span>
-              )}
-            </div>
+                  {/* if user count is more than 1 then show students else show join in and let other's know you're here */}
+                  {userCountData?.general >= 1 ? (
+                    <span className="text-green-800 font-semibold">
+                      {userCountData?.general}{" "}
+                      {userCountData?.general > 1 ? "students" : "student"}{" "}
+                      online
+                    </span>
+                  ) : (
+                    <span className="text-green-800 font-semibold text-sm">
+                      Join in and let others know you're here
+                    </span>
+                  )}
+                </div>
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               </div>
 

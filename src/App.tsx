@@ -6,6 +6,7 @@ import Onboarding from "./pages/Onboarding/Onboarding";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import ProfilePage from "./pages/Profile/Profile";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Landing />
+                </PrivateRoute>
+              }
+          />
+           <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <ProfilePage />
                 </PrivateRoute>
               }
             />
