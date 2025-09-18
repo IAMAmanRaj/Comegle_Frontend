@@ -1,13 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { Socket, io } from "socket.io-client";
+import {
+  MessageCircle,
+  Mic,
+  MicOff,
+  PhoneOff,
+  SkipForward,
+  X,
+  Send,
+  Users,
+  GraduationCap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const ICE_SERVERS = [
   { urls: "stun:stun.l.google.com:19302" },
   {
     urls: "turn:relay1.expressturn.com:3480",
     username: "000000002073404205",
-    credential: "53dym495ky60Cp7PciYJEBmda9s="
-  }
+    credential: "53dym495ky60Cp7PciYJEBmda9s=",
+  },
 ];
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
@@ -61,6 +74,9 @@ const Room = ({
     }[]
   >([]);
   const [chatInput, setChatInput] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showCollege, setShowCollege] = useState(false);
+  const chatInputRef = useRef<HTMLInputElement>(null);
 
   const appendMessageFromSender = (msg: {
     senderName: string;
@@ -287,6 +303,32 @@ const Room = ({
     }
   }, [localVideoTrack]);
 
+  useEffect(() => {
+    if (isChatOpen && chatInputRef.current) {
+      chatInputRef.current.focus();
+    }
+  }, [isChatOpen]);
+
+  useEffect(() => {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (isMobile) return; // 🔒 disable keybindings on mobile
+
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      const isTyping = activeTag === "input" || activeTag === "textarea";
+
+      // 📝 If typing, ignore C (chat toggle) completely
+      if (e.code === "KeyC" && !isTyping) {
+        e.preventDefault();
+        setIsChatOpen((o) => !o);
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lobby]);
+
   const skipAndReset = () => {
     setIsPeerAudioMuted(false);
     setAudioEnabled(true);
@@ -340,153 +382,259 @@ const Room = ({
   };
 
   return (
-    <div className="min-h-screen lg:overflow-hidden relative w-full lg:pl-8 bg-gradient-to-br from-blue-500 via-amber-950 to-indigo-500 flex flex-col gap-8 lg:gap-0 lg:flex-row  text-white ">
-      <div className="leftDiv lg:h-screen w-full lg:w-1/2 pt-12 lg:pl-24 flex flex-col">
-        <div className="flex w-full lg:h-[70%] mb-12 flex-col  lg:items-start ">
-          <div className="flex flex-col items-center relative">
-            <div className="relative">
-              <video
-                autoPlay
-                ref={remoteVideoRef}
-                className="rounded-xl border-4 border-white/20 shadow-lg h-56 w-80 object-cover bg-black"
-              />
-              <audio
-                ref={remoteAudioRef}
-                autoPlay
-                controls
-                className="absolute left-0 bottom-0"
-                style={{ display: "none" }}
-              />
-              <button
-                onClick={toggleRemoteAudio}
-                className="absolute top-2 right-2 hover:cursor-pointer bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition"
-                title={remoteMuted ? "Unmute Audio" : "Mute Audio"}
-              >
-                {remoteMuted ? "🔇" : "🔊"}
-              </button>
-            </div>
-            {isPeerAudioMuted && (
-              <span className="text-xs text-red-400 mt-1 animate-pulse">
-                🔇 Peer has muted their mic
-              </span>
-            )}
+    <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
+      {/* Main Video Area */}
+      <div className="h-screen flex flex-col">
+        {/* Header with online count only */}
+        <div className="flex items-center justify-between p-4 bg-gray-800/50 backdrop-blur-sm">
+          <div className="flex items-center gap-2 text-sm text-gray-300">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">{userCount} online</span>
+            <span className="sm:hidden">{userCount}</span>
           </div>
-          <div className="flex flex-col  items-center">
-            <video
-              autoPlay
-              ref={localVideoRef}
-              className="rounded-xl border-4 border-white/20 shadow-lg h-56 w-80 object-cover bg-black"
-            />
-          </div>
-        </div>
-        <div className="mt-4 w-[200px] mx-auto text-sm font-semibold bg-white/20 px-4 py-2 rounded-lg shadow-md backdrop-blur-sm">
-          🟢 {userCount} {userCount === 1 ? "user online" : "users online"}
-        </div>
-        {lobby ? (
-          <div className="lg:mt-4 w-full lg:w-80 text-center text-white/80 animate-pulse">
-            🔍 Matching you with someone...
-          </div>
-        ) : (
-          <div className="flex gap-4 lg:mt-6 w-full lg:w-80 justify-center">
-            <button
-              onClick={skipAndReset}
-              className="px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-300 transition"
-            >
-              ⏭ Skip
-            </button>
-            <button
-              onClick={toggleAudio}
-              className="px-6 py-2 bg-green-600 font-semibold rounded-lg hover:bg-green-700 transition"
-            >
-              {audioEnabled ? "🎤 Mute" : "🎤 Unmute"}
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="rightDiv h-[70vh] lg:h-screen w-full lg:w-1/2 flex flex-col bg-black/50 p-4">
-        <h2 className="text-xl font-semibold text-white mb-2">💬 Chat</h2>
-        {peerUser && (
-          <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-white/20 rounded-lg p-3 mb-3">
-            <div className="text-sm text-white/90">
-              🎉{" "}
-              <span className="font-semibold">
-                {peerUser.name} ({peerUser.gender})
-              </span>{" "}
-              from{" "}
-              <span className="font-medium text-blue-200">
-                {peerUser.college}
-              </span>{" "}
-              {topicName ? (
-                <span>interested in <i><b>{topicName ?? "Undefined"}</b></i> </span>
-              ) : (
-                <></>
-              )}
-              has joined the chat!
+
+          <div className="text-center flex-1">
+            <div className="flex justify-center items-center">
+              <div className="capitalize text-xs text-gray-400">
+                {topicName ? `${topicName}` : "Quick Chat"}
+              </div>
             </div>
           </div>
-        )}
-        <div className="flex-1 overflow-y-auto bg-white/10 rounded-lg p-3 space-y-2 text-sm">
-          {chatMessages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${
-                msg.senderId === socket?.id ? "justify-end" : ""
-              }`}
-            >
-              <div
-                className={`${
-                  msg.senderId === socket?.id ? "bg-blue-600" : "bg-white/20"
-                } text-white px-3 min-w-[200px] relative py-2 rounded-lg max-w-[75%]`}
-              >
-                <div className="font-bold text-xs mb-1">{msg.senderName}</div>
-                <div className="w-3/4">{msg.message}</div>
-                <div className="text-[10px] absolute bottom-1 right-2 text-gray-300">
-                  {new Date(msg.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+
+          {/* Chat Toggle Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            title="Toggle Chat ( press C )"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="text-gray-300 hover:text-white hover:bg-gray-700"
+          >
+            <MessageCircle className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Video Container */}
+        <div className="flex-1 flex items-center justify-center p-4 gap-4">
+          {lobby ? (
+            <div className="flex flex-col  gap-4 items-center justify-center max-w-6xl xl:max-w-7xl 2xl:max-w-[1350px] w-full">
+              <div className="animate-pulse text-gray-400 mb-4">
+                🔍 Matching you with someone...
+              </div>
+
+              {/* Local Video */}
+              <div className="relative">
+                <video
+                  autoPlay
+                  ref={localVideoRef}
+                  className="rounded-lg shadow-xl w-80 h-60 lg:w-96 lg:h-72  object-cover bg-gray-800 border border-gray-700"
+                />
+                <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 rounded text-sm">
+                  You
                 </div>
               </div>
             </div>
-          ))}
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-4  items-center justify-center max-w-6xl xl:max-w-7xl 2xl:max-w-[1350px] w-full">
+              {/* Remote Video */}
+              <div className="relative">
+                <video
+                  autoPlay
+                  ref={remoteVideoRef}
+                  className="rounded-lg shadow-xl w-80 h-60 lg:w-96 lg:h-72 xl:h-96 xl:w-[500px]  2xl:w-[700px] 2xl:h-[600px] object-cover bg-gray-800 border border-gray-700"
+                />
+                <audio
+                  ref={remoteAudioRef}
+                  autoPlay
+                  controls
+                  className="hidden"
+                />
+                {isPeerAudioMuted && (
+                  <div className="absolute top-3 right-3 bg-gray-900 rounded-full p-2">
+                    <MicOff className="w-4 h-4" />
+                  </div>
+                )}
+                <div className="absolute bottom-3 left-3">
+                  <div
+                    className="relative group flex gap-2 bg-black/60 px-2 py-1 rounded text-sm items-center"
+                    onClick={() => setShowCollege((prev) => !prev)} // mobile toggle
+                  >
+                    <span>{peerUser?.name || "Peer"}</span>
+
+                    {/* Institution icon */}
+                    <GraduationCap className="w-4 h-4 text-gray-200 hover:cursor-pointer" />
+
+                    {/* Tooltip */}
+                    {(showCollege || <div className="hidden sm:block" />) && (
+                      <div
+                        className={`absolute bottom-full left-0 mb-2 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap 
+            ${showCollege ? "block" : "hidden sm:group-hover:block"}`}
+                      >
+                        {peerUser?.college || "No college info"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Local Video */}
+              <div className="relative">
+                <video
+                  autoPlay
+                  ref={localVideoRef}
+                  className="rounded-lg shadow-xl w-80 h-60 lg:w-96 lg:h-72 xl:h-96 xl:w-[500px] 2xl:w-[700px] 2xl:h-[600px] object-cover bg-gray-800 border border-gray-700"
+                />
+                <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 rounded text-sm">
+                  You
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="mt-3 flex">
-          <input
-            type="text"
-            placeholder="Type your message..."
-            className="flex-1 px-4 py-2 rounded-l-lg bg-white/80 text-black focus:outline-none"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
-          />
-          <button
-            className="bg-green-500 px-4 py-2 rounded-r-lg hover:bg-green-600 transition"
-            onClick={sendChatMessage}
-          >
-            Send
-          </button>
+
+        {/* Bottom Controls */}
+        <div className="p-4 pb-4 bg-gray-800/50 backdrop-blur-sm">
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              onClick={toggleAudio}
+              variant={audioEnabled ? "default" : "destructive"}
+              size="lg"
+              title={audioEnabled ? "Mute Your Mic" : "Unmute Your Mic"}
+              className="rounded-full w-12 h-12 p-0"
+            >
+              {audioEnabled ? (
+                <Mic className="w-5 h-5" />
+              ) : (
+                <MicOff className="w-5 h-5" />
+              )}
+            </Button>
+
+            {/* Skip Button */}
+            <div className="relative group">
+              <Button
+                onClick={skipAndReset}
+                variant="secondary"
+                size="lg"
+                title="Skip"
+                className="rounded-full w-12 h-12 p-0"
+                disabled={lobby}
+              >
+                <SkipForward className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <Button
+              title="End Call"
+              onClick={() => {
+                if (localAudioTrack) {
+                  localAudioTrack.enabled = true;
+                }
+                if (socket) {
+                  if (topicName) {
+                    socket.emit("exit-topic", { topic: topicName, roomId });
+                  } else {
+                    socket.emit("exit", { roomId });
+                  }
+                }
+
+                setJoined(false);
+                cleanupPeers();
+              }}
+              variant="destructive"
+              size="lg"
+              className="rounded-full w-12 h-12 p-0"
+            >
+              <PhoneOff className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
-      <button
-        onClick={() => {
-          if (localAudioTrack) {
-            localAudioTrack.enabled = true;
-          }
-          if (socket) {
-            if (topicName) {
-              socket.emit("exit-topic", { topic: topicName, roomId });
-            } else {
-              socket.emit("exit", { roomId });
-            }
-          }
 
-          setJoined(false);
-          cleanupPeers();
-        }}
-        className=" px-2 text-[10px] py-2 absolute left-2 top-2 bg-red-800 font-semibold rounded-lg hover:bg-red-600 transition"
+      {/* Sliding Chat Panel */}
+      <div
+        className={cn(
+          "fixed top-0 right-0 h-full w-full sm:w-96 bg-gray-800 border-l border-gray-700 transform transition-transform duration-300 ease-in-out z-50",
+          isChatOpen ? "translate-x-0" : "translate-x-full"
+        )}
       >
-        ❌
-      </button>
+        <div className="flex flex-col h-full">
+          {/* Chat Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+            <h3 className="font-semibold">Chat</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsChatOpen(false)}
+              className="text-gray-400 hover:text-black hover:cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {chatMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${
+                  msg.senderId === socket?.id ? "justify-end" : ""
+                }`}
+              >
+                <div
+                  className={`${
+                    msg.senderId === socket?.id ? "bg-blue-600" : "bg-white/20"
+                  } text-white px-3 min-w-[200px] relative py-2 rounded-lg max-w-[75%]`}
+                >
+                  {/* //if msg.senderName equals user.username, display "You" instead */}
+                  {msg.senderName === user.username ? (
+                    <div className="font-bold text-xs mb-1">You</div>
+                  ) : (
+                    <div className="font-bold text-xs mb-1">
+                      {msg.senderName}
+                    </div>
+                  )}
+                  <div className="w-3/4">{msg.message}</div>
+                  <div className="text-[10px] absolute bottom-1 right-2 text-gray-300">
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Chat Input */}
+          <div className="p-4 border-t border-gray-700">
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center focus:border-transparent"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
+              />
+              <Button
+                onClick={sendChatMessage}
+                size="sm"
+                className="px-3"
+                disabled={!chatInput.trim()}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay when chat is open on mobile */}
+      {isChatOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          onClick={() => setIsChatOpen(false)}
+        />
+      )}
     </div>
   );
 };
