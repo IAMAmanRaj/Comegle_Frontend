@@ -92,64 +92,70 @@ const ProfilePage: React.FC = () => {
   };
 
   // React Query mutation for saving profile
-  const { mutate: saveProfile } = useMutation({
-      mutationFn: async (data: ProfileData) => {
-          
-           // Validate required fields
-    if (!data.username?.trim() || !data.fullName?.trim() || !data.gender?.trim()) {
-        toast.error("Username, Full Name, and Gender are required.");
-        return;
-      throw new Error("Missing required profile fields.");
-          }
-          
-      // Show loading toast (returns an id to update later)
-      const toastId = toast.loading("Saving profile...");
-      try {
-        // Build payload as per backend expects
-        const payload: any = {
-          avatar_url: data.avatar_url,
-          username: data.username,
-          full_name: data.fullName,
-          gender: data.gender,
-            country: data.country,
-            bio: data.bio,
-            tags: data.tags,
-            socials: { ...data.socialLinks },
-        };
-       
-        const res = await api.post("/user/save", payload);
-          toast.dismiss(toastId);
-          console.log("Profile save response:", res.data.user);
-        setUser(res.data.user);
-        return res.data;
-      } catch (error: any) {
-        toast.dismiss(toastId);
-        throw error;
-      }
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        setUser({
-          ...user,
-          avatar_url: data.user.avatar_url,
-          username: data.user.username,
-          full_name: data.user.full_name,
-          gender: data.user.gender,
-          country: data.user.country,
-          bio: data.user.bio,
-          tags: data.user.tags,
-          socialLinks: data.user.socialLinks,
-        });
-        setIsEditing(false);
-        toast.success("Profile updated successfully!");
-      } else {
-        toast.error(data.message || "Failed to update profile.");
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Error saving profile.");
-    },
-  });
+ const { mutate: saveProfile } = useMutation({
+  mutationFn: async (data: ProfileData) => {
+    // Validate required fields
+    if (!data.username?.trim() ) {
+      // Throw a custom error, caught by onError
+      throw new Error("Username is required.");
+         }
+         if (!data.fullName?.trim()) {
+             throw new Error("Full Name is required.");
+         }
+         if (!data.gender?.trim()) {
+             throw new Error("Gender is required.");
+         }
+
+    const toastId = toast.loading("Saving profile...");
+    try {
+      // Build payload as per backend expects
+      const payload: any = {
+        avatar_url: data.avatar_url,
+        username: data.username,
+        full_name: data.fullName,
+        gender: data.gender,
+        country: data.country,
+        bio: data.bio,
+        tags: data.tags,
+        socials: { ...data.socialLinks },
+      };
+
+      const res = await api.post("/user/save", payload);
+      toast.dismiss(toastId);
+      setUser(res.data.user);
+      return res.data;
+    } catch (error: any) {
+      toast.dismiss(toastId);
+      throw error;
+    }
+  },
+  onSuccess: (data) => {
+    if (data.success) {
+      setUser({
+        ...user,
+        avatar_url: data.user.avatar_url,
+        username: data.user.username,
+        full_name: data.user.full_name,
+        gender: data.user.gender,
+        country: data.user.country,
+        bio: data.user.bio,
+        tags: data.user.tags,
+        socialLinks: data.user.socialLinks,
+      });
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error(data.message || "Failed to update profile.");
+    }
+  },
+  onError: (error: any) => {
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Error saving profile."
+    );
+  },
+});
 
   const handleSaveProfile = () => {
     saveProfile(editData);
