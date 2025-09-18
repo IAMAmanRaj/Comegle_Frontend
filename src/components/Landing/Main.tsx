@@ -19,7 +19,6 @@ import ConfigureMatching from "./ConfigureMatching";
 import Room from "./Room";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
-import { set } from "zod";
 
 const URL = import.meta.env.VITE_SOCKET_SERVER_URL as string;
 
