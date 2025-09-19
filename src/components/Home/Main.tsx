@@ -114,7 +114,7 @@ export default function Main() {
                   Start Connecting
                 </Button>
                 <Link
-                  to="video_link_here_boye"
+                  to="https://drive.google.com/file/d/1UTqAQ7ZmNVPD9Axkts1kjxGRbhkXkov-/view"
                   target="_blank"
                   className="w-full sm:w-auto"
                 >

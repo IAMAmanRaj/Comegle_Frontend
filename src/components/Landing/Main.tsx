@@ -284,7 +284,7 @@ const stopMicTest = () => {
   }
 
   return (
-    <div className="overflow-scroll lg:overflow-hidden h-full md:h-[100vh] z-20 ">
+    <div className="  h-full md:min-h-screen z-20 ">
       {/* Background image */}
       <div
         className="absolute hidden md:block inset-0 w-full h-full -z-10"
