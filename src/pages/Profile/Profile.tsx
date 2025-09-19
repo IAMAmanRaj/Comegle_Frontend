@@ -1,36 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdHome, MdEdit, MdSave, MdCancel } from "react-icons/md";
-import { IoEye, IoImage } from "react-icons/io5";
-import {
-  FaBriefcase,
-  FaUser,
-  FaEnvelope,
-  FaMapMarkedAlt,
-} from "react-icons/fa";
-import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { CountryDropdown } from "@/components/ui/CountrySelect";
-import TagsInput from "@/components/ui/TagsInput";
 import { useAuthStore } from "../../store/useAuthStore";
 import { api } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import ProfileEditForm from "@/components/Profile/ProfileEditForm";
+import ProfileHeader from "@/components/Profile/ProfileHeader";
+import ProfileAvatar from "@/components/Profile/ProfileAvatar";
+import ProfileBio from "@/components/Profile/ProfileBio";
+import ProfileInfoGrid from "@/components/Profile/ProfileInfoGrid";
+import ProfileSocialLinks from "@/components/Profile/ProfileSocialLinks";
+import PageWrapper from "@/components/PageWrapper";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileData {
   avatar_url: string;
@@ -88,78 +69,76 @@ const ProfilePage: React.FC = () => {
 
   const handleEditProfile = () => {
     setEditData(profileData);
+    console.log("Edit Data:", editData);
     setIsEditing(true);
   };
 
   // React Query mutation for saving profile
- const { mutate: saveProfile } = useMutation({
-  mutationFn: async (data: ProfileData) => {
-    // Validate required fields
-    if (!data.username?.trim() ) {
-      // Throw a custom error, caught by onError
-      throw new Error("Username is required.");
-         }
-         if (!data.fullName?.trim()) {
-             throw new Error("Full Name is required.");
-         }
-         if (!data.gender?.trim()) {
-             throw new Error("Gender is required.");
-         }
+  const { mutate: saveProfile } = useMutation({
+    mutationFn: async (data: ProfileData) => {
+      const toastId = toast.loading("Saving profile...");
+      try {
+        const payload: any = {
+          avatar_url: data.avatar_url,
+          username: data.username,
+          full_name: data.fullName,
+          gender: data.gender,
+          country: data.country,
+          bio: data.bio,
+          tags: data.tags,
+          socials: { ...data.socialLinks },
+        };
 
-    const toastId = toast.loading("Saving profile...");
-    try {
-      // Build payload as per backend expects
-      const payload: any = {
-        avatar_url: data.avatar_url,
-        username: data.username,
-        full_name: data.fullName,
-        gender: data.gender,
-        country: data.country,
-        bio: data.bio,
-        tags: data.tags,
-        socials: { ...data.socialLinks },
-      };
-
-      const res = await api.post("/user/save", payload);
-      toast.dismiss(toastId);
-      setUser(res.data.user);
-      return res.data;
-    } catch (error: any) {
-      toast.dismiss(toastId);
-      throw error;
-    }
-  },
-  onSuccess: (data) => {
-    if (data.success) {
-      setUser({
-        ...user,
-        avatar_url: data.user.avatar_url,
-        username: data.user.username,
-        full_name: data.user.full_name,
-        gender: data.user.gender,
-        country: data.user.country,
-        bio: data.user.bio,
-        tags: data.user.tags,
-        socialLinks: data.user.socialLinks,
-      });
-      setIsEditing(false);
-      toast.success("Profile updated successfully!");
-    } else {
-      toast.error(data.message || "Failed to update profile.");
-    }
-  },
-  onError: (error: any) => {
-    toast.error(
-      error?.response?.data?.message ||
-      error?.message ||
-      "Error saving profile."
-    );
-  },
-});
+        const res = await api.post("/user/save", payload);
+        toast.dismiss(toastId);
+        setUser(res.data.user);
+        return res.data;
+      } catch (error: any) {
+        toast.dismiss(toastId);
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setUser({
+          ...user,
+          avatar_url: data.user.avatar_url,
+          username: data.user.username,
+          full_name: data.user.full_name,
+          gender: data.user.gender,
+          country: data.user.country,
+          bio: data.user.bio,
+          tags: data.user.tags,
+          socialLinks: data.user.socialLinks,
+        });
+        setIsEditing(false);
+        toast.success("Profile updated successfully!");
+      } else {
+        toast.error(data.message || "Failed to update profile.");
+      }
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error saving profile."
+      );
+    },
+  });
 
   const handleSaveProfile = () => {
-    saveProfile(editData);
-  };
+  const missingFields: string[] = [];
+  if (!editData.username?.trim()) missingFields.push("Username");
+  if (!editData.fullName?.trim()) missingFields.push("Full Name");
+  if (!editData.gender?.trim()) missingFields.push("Gender");
+
+  if (missingFields.length > 0) {
+    toast.error(`${missingFields.join(", ")} can't be empty`);
+    return;
+  }
+
+  saveProfile(editData);
+};
 
   const handleCancelEdit = () => {
     setEditData(profileData);
@@ -180,377 +159,89 @@ const ProfilePage: React.FC = () => {
     }));
   };
 
-    const handleTagsChange = (tags: string[]) => {
-      console.log("Updated tags:", tags);
+  const handleTagsChange = (tags: string[]) => {
     setEditData((prev) => ({ ...prev, tags }));
   };
 
-  const handleCountryChange = (countryCode: string) => {
-    setEditData((prev) => ({ ...prev, country: countryCode }));
+  // const handleCountryChange = (countryCode: string) => {
+  //   setEditData((prev) => ({ ...prev, country: countryCode }));
+  // };
+
+  useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (isEditing && e.shiftKey && e.key === "Enter") {
+      e.preventDefault();
+      handleSaveProfile();
+    }
+    if (isEditing && e.key === "Escape") {
+      e.preventDefault();
+      handleCancelEdit();
+    }
   };
 
-  // Remove isSaving from useEffect dependency
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && isEditing) {
-        e.preventDefault();
-        handleSaveProfile();
-      }
-    };
-    if (isEditing) {
-      document.addEventListener("keydown", handleKeyPress);
-      return () => document.removeEventListener("keydown", handleKeyPress);
-    }
-  }, [isEditing]);
+  if (isEditing) {
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }
+}, [isEditing]);
 
   return (
+    <PageWrapper>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Button
-            onClick={handleBack}
-            variant="ghost"
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-          >
-            <MdHome size={20} />
-            <span>Home</span>
-          </Button>
-          {!isEditing ? (
-            <Button
-              onClick={handleEditProfile}
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <MdEdit size={16} />
-              <span>Edit Profile</span>
-            </Button>
-          ) : (
-            <div className="flex space-x-3">
-              <Button
-                onClick={handleCancelEdit}
-                variant="ghost"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-              >
-                <MdCancel size={16} />
-                <span>Cancel</span>
-              </Button>
-              <Button
-                onClick={handleSaveProfile}
-                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700"
-              >
-                <MdSave size={16} />
-                <span>Save Changes</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Main Content */}
+      <ProfileHeader
+        isEditing={isEditing}
+        onBack={handleBack}
+        onEdit={handleEditProfile}
+        onSave={handleSaveProfile}
+        onCancel={handleCancelEdit}
+      />
       <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Avatar Section */}
-        <div className="text-center mb-8">
-          <div className="relative inline-block">
-            <img
-              src={profileData.avatar_url}
-              alt="Profile Avatar"
-              className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 shadow-lg rounded-full p-2 h-auto"
-                >
-                  <IoImage size={16} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem className="flex items-center space-x-2">
-                  <IoEye size={16} />
-                  <span>View Image</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center space-x-2">
-                  <MdEdit size={16} />
-                  <span>Edit Image</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {!isEditing ? (
-          // View Mode
-          <div className="space-y-8">
-            {/* Bio Section */}
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {profileData.fullName}
-              </h1>
-              <p className="text-lg text-gray-600 mb-4">
-                @{profileData.username}
-              </p>
-              <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed mb-6">
-                {profileData.bio}
-              </p>
-              {/* Tags Display */}
-              {profileData.tags.length > 0 && (
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {profileData.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Profile Info Grid */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    <FaBriefcase className="text-blue-600" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">College</p>
-                    <p className="font-semibold text-gray-900">
-                      {profileData.collegeName}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="bg-purple-100 p-2 rounded-lg">
-                    <FaUser className="text-purple-600" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Gender</p>
-                    <p className="font-semibold text-gray-900 capitalize">
-                      {profileData.gender}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 p-2 rounded-lg">
-                    <FaEnvelope className="text-green-600" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-semibold text-gray-900">
-                      {profileData.email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-orange-100 p-2 rounded-lg">
-                    <FaMapMarkedAlt className="text-orange-600" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Location</p>
-                    <p className="font-semibold text-gray-900">
-                      {profileData.state}, {profileData.country}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Social Links
-              </h3>
-              <div className="flex justify-center space-x-6">
-                {!profileData.socialLinks.linked_in &&
-                !profileData.socialLinks.twitter &&
-                !profileData.socialLinks.instagram ? (
-                  <p className="text-gray-500">No social links added yet.</p>
-                ) : (
-                  <>
-                    {profileData.socialLinks.linked_in && (
-                      <a
-                        href={profileData.socialLinks.linked_in}
-                        className="bg-blue-100 hover:bg-blue-200 p-3 rounded-lg transition-colors"
-                      >
-                        <FaLinkedin className="text-blue-600" size={24} />
-                      </a>
-                    )}
-                    {profileData.socialLinks.twitter && (
-                      <a
-                        href={profileData.socialLinks.twitter}
-                        className="bg-sky-100 hover:bg-sky-200 p-3 rounded-lg transition-colors"
-                      >
-                        <FaTwitter className="text-sky-600" size={24} />
-                      </a>
-                    )}
-                    {profileData.socialLinks.instagram && (
-                      <a
-                        href={profileData.socialLinks.instagram}
-                        className="bg-pink-100 hover:bg-pink-200 p-3 rounded-lg transition-colors"
-                      >
-                        <FaInstagram className="text-pink-600" size={24} />
-                      </a>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Edit Mode
-          <div className="space-y-8">
-            {/* Basic Profile Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Basic Profile
-              </h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Username
-                  </label>
-                  <Input
-                    type="text"
-                    value={editData.username}
-                    onChange={(e) =>
-                      handleInputChange("username", e.target.value)
-                    }
-                    className="h-12"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={editData.fullName}
-                    onChange={(e) =>
-                      handleInputChange("fullName", e.target.value)
-                    }
-                    className="h-12"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Gender
-                  </label>
-                  <Select
-                    value={editData.gender}
-                    onValueChange={(value) =>
-                      handleInputChange("gender", value)
-                    }
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="non-binary">Non-binary</SelectItem>
-                      <SelectItem value="prefer not to say">
-                        Prefer not to say
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Country
-                  </label>
-                  <CountryDropdown
-                    placeholder="Select country"
-                    defaultValue={editData.country}
-                    onChange={(country) => handleCountryChange(country.alpha3)}
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags/Interests
-                  </label>
-                  <TagsInput
-                    tags={editData.tags}
-                    onChange={handleTagsChange}
-                    placeholder="Add your interests and skills (press Enter to add)"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Press Enter to add tags. Click × to remove them.
-                  </p>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Brief Bio
-                  </label>
-                  <Textarea
-                    value={editData.bio}
-                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
-              </div>
-            </div>
-            {/* Social Links Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Social Media Links
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    <FaLinkedin className="text-blue-600" size={20} />
-                  </div>
-                  <Input
-                    type="url"
-                    value={editData.socialLinks.linked_in}
-                    onChange={(e) =>
-                      handleSocialLinkChange("linked_in", e.target.value)
-                    }
-                    placeholder="LinkedIn profile URL"
-                    className="flex-1 h-12"
-                  />
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-sky-100 p-2 rounded-lg">
-                    <FaTwitter className="text-sky-600" size={20} />
-                  </div>
-                  <Input
-                    type="url"
-                    value={editData.socialLinks.twitter}
-                    onChange={(e) =>
-                      handleSocialLinkChange("twitter", e.target.value)
-                    }
-                    placeholder="Twitter profile URL"
-                    className="flex-1 h-12"
-                  />
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="bg-pink-100 p-2 rounded-lg">
-                    <FaInstagram className="text-pink-600" size={20} />
-                  </div>
-                  <Input
-                    type="url"
-                    value={editData.socialLinks.instagram}
-                    onChange={(e) =>
-                      handleSocialLinkChange("instagram", e.target.value)
-                    }
-                    placeholder="Instagram profile URL"
-                    className="flex-1 h-12"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <ProfileAvatar avatar_url={profileData.avatar_url} />
+      <AnimatePresence mode="wait">
+  {!isEditing ? (
+    <motion.div
+      key="view"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <ProfileBio
+        fullName={profileData.fullName}
+        username={profileData.username}
+        bio={profileData.bio}
+        tags={profileData.tags}
+      />
+      <ProfileInfoGrid
+        collegeName={profileData.collegeName}
+        gender={profileData.gender}
+        email={profileData.email}
+        state={profileData.state}
+        country={profileData.country}
+      />
+      <ProfileSocialLinks socialLinks={profileData.socialLinks} />
+    </motion.div>
+  ) : (
+    <motion.div
+      key="edit"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <ProfileEditForm
+        editData={editData}
+        onInputChange={handleInputChange}
+        onSocialLinkChange={handleSocialLinkChange}
+        onTagsChange={handleTagsChange}
+        // onCountryChange={handleCountryChange}
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
       </div>
-    </div>
+      </div>
+      </PageWrapper>
   );
 };
 

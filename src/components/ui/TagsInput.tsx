@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { IoClose, IoAdd } from 'react-icons/io5';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MdKeyboardReturn } from "react-icons/md";
 
 interface TagsInputProps {
   tags: string[];
@@ -84,15 +85,11 @@ const TagsInput: React.FC<TagsInputProps> = ({
           placeholder={placeholder}
           className="border-none shadow-none focus-visible:ring-0 px-0"
         />
-        <Button
-          type="button"
-          onClick={handleAddClick}
-          size="sm"
-          variant="ghost"
-          className="px-2"
-        >
-          <IoAdd size={16} />
-        </Button>
+        <div className='flex flex-row px-4 py-2 items-center bg-blue-800 rounded-3xl '>
+          <span className='text-sm font-bold mr-2 text-white'>Add</span>
+            <MdKeyboardReturn onClick={handleAddClick} size={20} className='text-white' />
+        </div>
+      
       </div>
     </div>
   );
