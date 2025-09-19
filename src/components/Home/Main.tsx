@@ -99,7 +99,7 @@ export default function Main() {
               <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-balance">
                 <span className="text-emerald-600">Comegle</span>
                 <br />
-                <span className="text-slate-700">Omegle for Colleges</span>
+                <span className="text-slate-700 relative top-2">Omegle for Colleges</span>
               </h1>
               <p className="text-xl text-slate-500 mb-8 text-pretty">
                 Connect with college students through video chat, join interest

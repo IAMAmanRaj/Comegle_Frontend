@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, TrendingUp, Users, ArrowLeft, Plus } from "lucide-react";
 import AddInterestModal from "./AddInterestModal";
+import { WiStars } from "react-icons/wi";
 
 interface Community {
   id: string;
@@ -167,7 +168,8 @@ const Communities: React.FC<CommunitiesProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-emerald-50">
+    //gradient bg
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50  to-gray-900">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -175,13 +177,16 @@ const Communities: React.FC<CommunitiesProps> = ({
             onClick={onBack}
             className="inline-flex items-center text-2xl hover:cursor-pointer text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-6 h-6 mr-2" />
             Back to Home
           </button>
-
-          <h1 className="text-4xl font-bold text-emerald-600 mb-4">
-            Find Your Community
+          <span className="flex flex-row w-full justify-center">
+            <h1 className="text-4xl font-bold text-emerald-600 mb-4">
+            Find Your Community 
           </h1>
+          <WiStars className="w-10 h-10 ml-2 mt-2 text-emerald-600" />
+</span>
+          
           <p className="text-xl text-gray-600 mb-6">
             Connect with{" "}
             {/* <span className="font-semibold text-blue-600">
@@ -238,7 +243,7 @@ const Communities: React.FC<CommunitiesProps> = ({
               </div>
                {community.isTrending && (
                 <div className="flex items-center absolute top-3 left-3">
-                  <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     Trending Now
                   </div>
