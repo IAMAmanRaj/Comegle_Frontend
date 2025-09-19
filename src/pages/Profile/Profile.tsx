@@ -165,6 +165,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleTagsChange = (tags: string[]) => {
+    console.log("Tags changed:", tags);
     setEditData((prev) => ({ ...prev, tags }));
   };
 
@@ -172,24 +173,6 @@ const ProfilePage: React.FC = () => {
   //   setEditData((prev) => ({ ...prev, country: countryCode }));
   // };
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (isEditing && e.shiftKey && e.key === "Enter") {
-        e.preventDefault();
-        handleSaveProfile();
-      }
-     
-      if (isEditing && e.key === "Escape") {
-        e.preventDefault();
-        handleCancelEdit();
-      }
-    };
-
-    if (isEditing) {
-      document.addEventListener("keydown", handleKeyPress);
-      return () => document.removeEventListener("keydown", handleKeyPress);
-    }
-  }, [isEditing]);
 
   return (
     <PageWrapper>

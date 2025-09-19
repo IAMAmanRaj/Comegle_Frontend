@@ -57,14 +57,14 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
  <h3 className="text-xl font-semibold text-gray-900 mb-6">
         Basic Profile
         </h3>
-        <div className="flex flex-col absolute top-6 right-8">
+        {/* <div className="flex flex-col absolute top-6 right-8">
 <h3 className="text-sm hidden lg:block font-semibold text-gray-700 mb-2">
                     {`Hit Shift + Enter To Save`}
         </h3>
            <h3 className="text-sm hidden lg:block font-semibold text-gray-700 mb-6">
                     {`Hit Esc To Close`}
                 </h3>
-        </div>
+        </div> */}
                 
                 
             </div>

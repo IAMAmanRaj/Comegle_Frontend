@@ -22,6 +22,7 @@ const TagsInput: React.FC<TagsInputProps> = ({
   const addTag = (tag: string) => {
     const trimmedTag = tag.trim();
     if (trimmedTag && !tags.includes(trimmedTag)) {
+      console.log("running", trimmedTag);
       onChange([...tags, trimmedTag]);
     }
     setInputValue('');
@@ -35,12 +36,15 @@ const TagsInput: React.FC<TagsInputProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (inputValue.trim()) {
+        console.log("Adding tag:", inputValue);
         addTag(inputValue);
       }
     }
     if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
     }
+
+    console.log("updated tags:", tags);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
