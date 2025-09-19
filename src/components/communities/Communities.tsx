@@ -169,7 +169,7 @@ const Communities: React.FC<CommunitiesProps> = ({
 
   return (
     //gradient bg
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50  to-gray-900">
+    <div className="min-h-screen bg-emerald-50">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">

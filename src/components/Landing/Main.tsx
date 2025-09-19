@@ -359,7 +359,7 @@ const stopMicTest = () => {
             {/* Configure Matching */}
             <button
               onClick={() => setShowConfigModal(true)}
-              className="w-full  hover:cursor-pointer  bg-emerald-700 text-white py-3 px-6 rounded-xl hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center space-x-3 font-medium "
+              className="w-full  hover:cursor-pointer  bg-white border-2 border-gray-100 hover:border-gray-200 text-emerald-700 py-3 px-6 rounded-xl hover:bg-gray-100 transition-all duration-300 flex items-center justify-center space-x-3 font-medium "
             >
               <Settings className="w-5 h-5 " />
               <span>Configure Matching</span>
@@ -372,7 +372,7 @@ const stopMicTest = () => {
                 setJoined(true);
               }}
               disabled={!user || !user.username?.trim()}
-              className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-gray-500 via-gray-700 shadow-3xl to-gray-800 hover:opacity-90 text-white py-3 md:py-3 lg:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 md:text-sm lg:text-lg font-medium  disabled:opacity-40  mb-6 md:mb-3"
+              className="w-full mt-2  hover:cursor-pointer shadow-3xl bg-emerald-700 hover:opacity-90 text-white py-3 md:py-3 lg:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 md:text-sm lg:text-lg font-medium  disabled:opacity-40  mb-6 md:mb-3"
             >
               <Play className="w-6 h-6" />
               <span>Start Quick Chat</span>
@@ -482,7 +482,7 @@ const stopMicTest = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
               <div className="text-center">
-                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-gray-700 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   1
                 </div>
                 <p className="text-sm text-gray-700">
@@ -491,7 +491,7 @@ const stopMicTest = () => {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-gray-700 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   2
                 </div>
                 <p className="text-sm text-gray-700">
@@ -499,7 +499,7 @@ const stopMicTest = () => {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-gray-700 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   3
                 </div>
                 <p className="text-sm text-gray-700">
