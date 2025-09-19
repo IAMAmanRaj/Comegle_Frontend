@@ -33,7 +33,7 @@ interface ProfileData {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, setToken } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
 
   // Use user from Zustand as the single source of truth for profile data
@@ -90,6 +90,12 @@ const ProfilePage: React.FC = () => {
         };
 
         const res = await api.post("/user/save", payload);
+
+        // If accessToken is present, update it (transparent refresh)
+        if (res.data.accessToken) {
+          setToken(res.data.accessToken);
+        }
+
         toast.dismiss(toastId);
         setUser(res.data.user);
         return res.data;
@@ -120,25 +126,24 @@ const ProfilePage: React.FC = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Error saving profile."
+          error?.message ||
+          "Error saving profile."
       );
     },
   });
 
   const handleSaveProfile = () => {
-  const missingFields: string[] = [];
-  if (!editData.username?.trim()) missingFields.push("Username");
-  if (!editData.fullName?.trim()) missingFields.push("Full Name");
-  if (!editData.gender?.trim()) missingFields.push("Gender");
+    const missingFields: string[] = [];
+    if (!editData.username?.trim()) missingFields.push("Username");
+    if (!editData.fullName?.trim()) missingFields.push("Full Name");
 
-  if (missingFields.length > 0) {
-    toast.error(`${missingFields.join(", ")} can't be empty`);
-    return;
-  }
+    if (missingFields.length > 0) {
+      toast.error(`${missingFields.join(", ")} can't be empty`);
+      return;
+    }
 
-  saveProfile(editData);
-};
+    saveProfile(editData);
+  };
 
   const handleCancelEdit = () => {
     setEditData(profileData);
@@ -168,80 +173,85 @@ const ProfilePage: React.FC = () => {
   // };
 
   useEffect(() => {
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (isEditing && e.shiftKey && e.key === "Enter") {
-      e.preventDefault();
-      handleSaveProfile();
-    }
-    if (isEditing && e.key === "Escape") {
-      e.preventDefault();
-      handleCancelEdit();
-    }
-  };
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isEditing && e.shiftKey && e.key === "Enter") {
+        e.preventDefault();
+        handleSaveProfile();
+      }
+      if (isEditing && e.shiftKey && e.key === "Enter") {
+        e.preventDefault();
+        handleSaveProfile();
+      }
+     
+      if (isEditing && e.key === "Escape") {
+        e.preventDefault();
+        handleCancelEdit();
+      }
+    };
 
-  if (isEditing) {
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }
-}, [isEditing]);
+    if (isEditing) {
+      document.addEventListener("keydown", handleKeyPress);
+      return () => document.removeEventListener("keydown", handleKeyPress);
+    }
+  }, [isEditing]);
 
   return (
     <PageWrapper>
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <ProfileHeader
-        isEditing={isEditing}
-        onBack={handleBack}
-        onEdit={handleEditProfile}
-        onSave={handleSaveProfile}
-        onCancel={handleCancelEdit}
-      />
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <ProfileAvatar avatar_url={profileData.avatar_url} />
-      <AnimatePresence mode="wait">
-  {!isEditing ? (
-    <motion.div
-      key="view"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <ProfileBio
-        fullName={profileData.fullName}
-        username={profileData.username}
-        bio={profileData.bio}
-        tags={profileData.tags}
-      />
-      <ProfileInfoGrid
-        collegeName={profileData.collegeName}
-        gender={profileData.gender}
-        email={profileData.email}
-        state={profileData.state}
-        country={profileData.country}
-      />
-      <ProfileSocialLinks socialLinks={profileData.socialLinks} />
-    </motion.div>
-  ) : (
-    <motion.div
-      key="edit"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <ProfileEditForm
-        editData={editData}
-        onInputChange={handleInputChange}
-        onSocialLinkChange={handleSocialLinkChange}
-        onTagsChange={handleTagsChange}
-        // onCountryChange={handleCountryChange}
-      />
-    </motion.div>
-  )}
-</AnimatePresence>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <ProfileHeader
+          isEditing={isEditing}
+          onBack={handleBack}
+          onEdit={handleEditProfile}
+          onSave={handleSaveProfile}
+          onCancel={handleCancelEdit}
+        />
+        <div className="max-w-4xl mx-auto px-3 py-8">
+          <ProfileAvatar avatar_url={profileData.avatar_url} />
+          <AnimatePresence mode="wait">
+            {!isEditing ? (
+              <motion.div
+                key="view"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ProfileBio
+                  fullName={profileData.fullName}
+                  username={profileData.username}
+                  bio={profileData.bio}
+                  tags={profileData.tags}
+                />
+                <ProfileInfoGrid
+                  collegeName={profileData.collegeName}
+                  gender={profileData.gender}
+                  email={profileData.email}
+                  state={profileData.state}
+                  country={profileData.country}
+                />
+                <ProfileSocialLinks socialLinks={profileData.socialLinks} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="edit"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ProfileEditForm
+                  editData={editData}
+                  onInputChange={handleInputChange}
+                  onSocialLinkChange={handleSocialLinkChange}
+                  onTagsChange={handleTagsChange}
+                  // onCountryChange={handleCountryChange}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-      </div>
-      </PageWrapper>
+    </PageWrapper>
   );
 };
 
