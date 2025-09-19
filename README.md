@@ -1,60 +1,103 @@
-# React + TypeScript + Vite
+# Comegle Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Comegle is a community-driven web application for **college students** to discover and connect with interest-based communities, and instantly join 1:1 video calls with peers. Our matching lobby offers preference-based matching (by state and gender).  
+Authentication ensures only verified college students (and select test emails) can sign up—anonymous signups are **not allowed**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌐 Live Demo
 
-## Expanding the ESLint configuration
+- [Main Site](https://www.comegle.live)
+- [Vercel Preview](https://comegle-frontend.vercel.app)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **Interest-based communities** for college students, matching students from different colleges across INDIA
+- **Edit your profile sections** easily to share more about yourself
+- **Share your social links quickly in the chat lobby** for instant connections
+- **1:1 video calling** via WebRTC
+- **Preference-based matching** (state, gender)
+- **Real-time chat & lobby** using WebSockets
+- **Secure authentication:** Only verified college students allowed
+- **Fast, modern stack:** React + TypeScript + Vite
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🛠️ Local Development
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/IAMAmanRaj/Comegle_Frontend.git
+cd Comegle_Frontend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup environment variables
+
+Create a `.env` file in the **root folder** of the project.  
+Add the following dummy environment variables:
+
+```env
+VITE_SOCKET_SERVER_URL=""
+VITE_GOOGLE_CLIENT_ID=""
+VITE_MAIN_SERVER_URL=""
+```
+
+> **Note:** These are example values. Update them to match your backend and Google OAuth setup as needed.
+
+### 4. Run the app
+
+```bash
+npm run dev
+```
+
+The app should now be running locally at `http://localhost:5173` (or whichever port Vite reports).
+
+---
+
+## 📝 Tech Stack
+
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [Socket.IO](https://socket.io/)
+- [WebRTC](https://webrtc.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+## ⚙️ ESLint Configuration
+
+For production apps, we recommend enabling **type-aware lint rules** in your ESLint config.  
+Here's an example using [@typescript-eslint/eslint-plugin](https://typescript-eslint.io/) and some React plugins:
 
 ```js
 // eslint.config.js
+import tseslint from 'typescript-eslint'
 import reactX from 'eslint-plugin-react-x'
 import reactDom from 'eslint-plugin-react-dom'
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  tseslint.globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
-      // Other configs...
-      // Enable lint rules for React
+      // Recommended type-aware rules
+      ...tseslint.configs.recommendedTypeChecked,
+      // Stricter rules (optional)
+      ...tseslint.configs.strictTypeChecked,
+      // Stylistic rules (optional)
+      ...tseslint.configs.stylisticTypeChecked,
+      // React-specific rules
       reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
@@ -62,8 +105,27 @@ export default tseslint.config([
         project: ['./tsconfig.node.json', './tsconfig.app.json'],
         tsconfigRootDir: import.meta.dirname,
       },
-      // other options...
     },
   },
 ])
 ```
+
+---
+
+## 📧 Signup Requirements
+
+- Only **college student emails** (and a few test emails) are allowed to sign up.
+- Anonymous registrations are blocked.
+
+---
+
+## 📄 License
+
+MIT
+
+---
+
+## 🙏 Contributing
+
+Pull requests and feedback are welcome!  
+Feel free to open issues and help improve the platform for college communities.
