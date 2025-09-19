@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { IoClose, IoAdd } from 'react-icons/io5';
-import { Button } from '@/components/ui/button';
+import { IoClose } from 'react-icons/io5';
 import { Input } from '@/components/ui/input';
 import { MdKeyboardReturn } from "react-icons/md";
 
@@ -85,9 +84,9 @@ const TagsInput: React.FC<TagsInputProps> = ({
           placeholder={placeholder}
           className="border-none shadow-none focus-visible:ring-0 px-0"
         />
-        <div className='flex flex-row px-4 py-2 items-center bg-blue-800 rounded-3xl '>
+        <div onClick={handleAddClick} className='flex hover:cursor-pointer flex-row px-4 py-2 items-center bg-blue-800 rounded-3xl '>
           <span className='text-sm font-bold mr-2 text-white'>Add</span>
-            <MdKeyboardReturn onClick={handleAddClick} size={20} className='text-white' />
+            <MdKeyboardReturn  size={20} className='text-white' />
         </div>
       
       </div>

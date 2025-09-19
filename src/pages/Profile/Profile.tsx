@@ -178,10 +178,6 @@ const ProfilePage: React.FC = () => {
         e.preventDefault();
         handleSaveProfile();
       }
-      if (isEditing && e.shiftKey && e.key === "Enter") {
-        e.preventDefault();
-        handleSaveProfile();
-      }
      
       if (isEditing && e.key === "Escape") {
         e.preventDefault();

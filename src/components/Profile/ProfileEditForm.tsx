@@ -52,15 +52,21 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
    
   <div className="space-y-8">
     {/* Basic Profile Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="w-full flex flex-row justify-between">
+        <div className="bg-white relative rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="w-full  flex flex-row justify-between">
  <h3 className="text-xl font-semibold text-gray-900 mb-6">
         Basic Profile
-                </h3>
-                
-                <h3 className="text-sm hidden lg:block font-semibold text-gray-700 mb-6">
+        </h3>
+        <div className="flex flex-col absolute top-6 right-8">
+<h3 className="text-sm hidden lg:block font-semibold text-gray-700 mb-2">
                     {`Hit Shift + Enter To Save`}
+        </h3>
+           <h3 className="text-sm hidden lg:block font-semibold text-gray-700 mb-6">
+                    {`Hit Esc To Close`}
                 </h3>
+        </div>
+                
+                
             </div>
      
       <div className="grid md:grid-cols-2 gap-6">
