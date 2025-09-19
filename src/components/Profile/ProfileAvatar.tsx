@@ -22,7 +22,7 @@ const ProfileAvatar: React.FC<Props> = ({ avatar_url }) => {
         <img
           src={avatar_url}
           alt="Profile Avatar"
-          className="w-32 h-32 rounded-full mt-16 object-cover border-4 border-white shadow-lg"
+          className="w-28 h-28 rounded-full mt-16 object-cover border-4 border-white shadow-lg"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -45,11 +45,11 @@ const ProfileAvatar: React.FC<Props> = ({ avatar_url }) => {
 
         {/* Dialog for viewing image */}
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="p-4 w-auto">
+          <DialogContent className=" w-auto">
             <img
               src={avatar_url}
               alt="Profile Avatar Full"
-              className="w-[120px] h-[120px] rounded-lg"
+              className="w-[200px] h-[200px] rounded-lg"
             />
           </DialogContent>
         </Dialog>

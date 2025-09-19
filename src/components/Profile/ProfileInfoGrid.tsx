@@ -17,7 +17,7 @@ const ProfileInfoGrid: React.FC<Props> = ({
   country,
 }) => (
   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4 mb-4">
-    <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid sm:grid-cols-2 gap-6">
       <div className="flex items-center space-x-3">
         <div className="bg-blue-100 p-2 rounded-lg">
           <FaBriefcase className="text-blue-600" size={20} />
