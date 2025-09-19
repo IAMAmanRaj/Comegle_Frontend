@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 // import toast from 'react-hot-toast';
 import { WiStars } from "react-icons/wi";
@@ -9,8 +9,8 @@ interface AddInterestModalProps {
 }
 
 const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) => {
-  const [interest, setInterest] = useState('');
-   const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [interest, setInterest] = useState('');
+  //  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 

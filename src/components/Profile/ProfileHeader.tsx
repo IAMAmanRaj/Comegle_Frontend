@@ -1,7 +1,7 @@
 import React from "react";
-import { MdEdit, MdOutlineKeyboardReturn } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import { IoReturnUpBack } from "react-icons/io5";
-import { ImShift } from "react-icons/im";
+// import { ImShift } from "react-icons/im";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { AiFillHome } from "react-icons/ai";
@@ -26,7 +26,7 @@ const ProfileHeader: React.FC<Props> = ({
       {/* Back/Home button */}
      
       
-        <AiFillHome onClick={onBack} size={30} className="mr-2 hover:cursor-pointer text-blue-700 ml-2 -mt-1" />
+        <AiFillHome onClick={onBack} size={30} className="mr-2 hover:cursor-pointer hover:text-emerald-600 transition-all duration-300 text-emerald-700 ml-2 -mt-1" />
       
 
       {/* AnimatePresence for right-side buttons */}
@@ -41,7 +41,7 @@ const ProfileHeader: React.FC<Props> = ({
           >
             <Button
               onClick={onEdit}
-              className="flex items-center hover:cursor-pointer space-x-2 bg-blue-600 hover:bg-blue-700"
+              className="flex items-center hover:cursor-pointer space-x-2 bg-emerald-700 hover:bg-emerald-600"
             >
               <MdEdit size={16} />
               <span>Edit </span>

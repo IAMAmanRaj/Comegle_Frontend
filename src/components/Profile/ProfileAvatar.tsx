@@ -22,13 +22,13 @@ const ProfileAvatar: React.FC<Props> = ({ avatar_url }) => {
         <img
           src={avatar_url}
           alt="Profile Avatar"
-          className="w-28 h-28 rounded-full mt-16 object-cover border-4 border-white shadow-lg"
+          className="w-28 h-28 rounded-full mt-16 object-cover border-2 border-white shadow-lg"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
-              className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 shadow-lg rounded-full p-2 h-auto"
+              className="absolute bottom-2 right-2 bg-emerald-700 hover:bg-emerald-600 hover:cursor-pointer shadow-lg rounded-full p-2 h-auto"
             >
               <IoImage size={16} />
             </Button>

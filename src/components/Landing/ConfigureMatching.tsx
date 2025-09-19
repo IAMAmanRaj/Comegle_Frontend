@@ -209,7 +209,7 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-blue-600 text-white hover:cursor-pointer rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="px-4 py-2 bg-emerald-700 text-white hover:cursor-pointer rounded-lg hover:bg-emerald-600 transition-colors duration-200"
           >
             Save Preferences
           </button>

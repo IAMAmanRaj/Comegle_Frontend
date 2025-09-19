@@ -46,6 +46,69 @@ export const Main = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentTrendingIndex, setCurrentTrendingIndex] = useState(0);
 
+  const [isTestingMic, setIsTestingMic] = useState(false);
+const [micLevel, setMicLevel] = useState(0);
+const audioContextRef = useRef<AudioContext | null>(null);
+const analyserRef = useRef<AnalyserNode | null>(null);
+const micStreamRef = useRef<MediaStream | null>(null);
+  const micAnimationFrameRef = useRef<number | null>(null);
+  
+
+  const startMicTest = async () => {
+  setIsTestingMic(true);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStreamRef.current = stream;
+    audioContextRef.current = new (
+  window.AudioContext || (window as any).webkitAudioContext
+)();
+    const analyser = audioContextRef.current.createAnalyser();
+    analyser.fftSize = 256;
+    analyserRef.current = analyser;
+
+    const source = audioContextRef.current.createMediaStreamSource(stream);
+    source.connect(analyser);
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const updateMicLevel = () => {
+      analyser.getByteTimeDomainData(dataArray);
+      // Calculate RMS (volume level)
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        const normalized = (dataArray[i] - 128) / 128;
+        sum += normalized * normalized;
+      }
+      const rms = Math.sqrt(sum / dataArray.length);
+      setMicLevel(rms);
+      micAnimationFrameRef.current = requestAnimationFrame(updateMicLevel);
+    };
+
+    updateMicLevel();
+  } catch (err) {
+    toast.error("Microphone access denied");
+    setIsTestingMic(false);
+  }
+};
+
+const stopMicTest = () => {
+  setIsTestingMic(false);
+  if (micAnimationFrameRef.current) {
+    cancelAnimationFrame(micAnimationFrameRef.current);
+  }
+  if (micStreamRef.current) {
+    micStreamRef.current.getTracks().forEach(track => track.stop());
+    micStreamRef.current = null;
+  }
+  if (audioContextRef.current) {
+    audioContextRef.current.close();
+    audioContextRef.current = null;
+  }
+  setMicLevel(0);
+  };
+  
+  
+
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [matchingPreferences, setMatchingPreferences] =
     useState<MatchingPreferences>({
@@ -115,12 +178,15 @@ export const Main = () => {
   };
 
   const handleSidebarToggle = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-    if (!isSidebarOpen && sidebarVideoRef.current && localVideoTrack) {
-      sidebarVideoRef.current.srcObject = new MediaStream([localVideoTrack]);
-      sidebarVideoRef.current.play();
-    }
-  };
+  setIsSidebarOpen(!isSidebarOpen);
+  if (!isSidebarOpen && sidebarVideoRef.current && localVideoTrack) {
+    sidebarVideoRef.current.srcObject = new MediaStream([localVideoTrack]);
+    sidebarVideoRef.current.play();
+  }
+  if (isSidebarOpen) {
+    stopMicTest();
+  }
+};
 
   const handleJoinCommunity = (communityName: string) => {
     if (setSelectedCommunity) {
@@ -259,22 +325,22 @@ export const Main = () => {
               Quick Connect
             </h2>
 
-            <div className="flex items-center justify-between mb-6 md:mb-2 lg:mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
+            <div className="flex items-center justify-between mb-6 md:mb-2 lg:mb-6 p-4 bg-emerald-50 rounded-xl border border-green-200">
               <div className="flex items-center  hover:cursor-pointer">
                 <Users className="w-5 h-5 text-green-600 mr-2 " />
                 {/* if user count is more than 1 then show students else show join in and let other's know you're here */}
                 {userCountData?.general >= 1 ? (
-                  <span className="text-green-800 font-semibold">
+                  <span className="text-emerald-700 font-semibold">
                     {userCountData?.general}{" "}
                     {userCountData?.general > 1 ? "students" : "student"} online
                   </span>
                 ) : (
-                  <span className="text-green-800 font-semibold text-[14px] sm:text-[16px] md:text-[13px] lg:text-[16px]">
+                  <span className="text-emerald-700 font-semibold text-[14px] sm:text-[16px] md:text-[13px] lg:text-[16px]">
                     Join in and let others know you're here
                   </span>
                 )}
               </div>
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse hidden md:block"></div>
+              <div className="w-3 h-3 bg-emerald-600 rounded-full animate-pulse hidden md:block"></div>
             </div>
 
             {/* You'll be joining as */}
@@ -293,7 +359,7 @@ export const Main = () => {
             {/* Configure Matching */}
             <button
               onClick={() => setShowConfigModal(true)}
-              className="w-full  hover:cursor-pointer  bg-teal-700 text-white py-3 px-6 rounded-xl hover:bg-teal-600 transition-all duration-300 flex items-center justify-center space-x-3 font-medium transform hover:scale-105"
+              className="w-full  hover:cursor-pointer  bg-emerald-700 text-white py-3 px-6 rounded-xl hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center space-x-3 font-medium "
             >
               <Settings className="w-5 h-5 " />
               <span>Configure Matching</span>
@@ -306,7 +372,7 @@ export const Main = () => {
                 setJoined(true);
               }}
               disabled={!user || !user.username?.trim()}
-              className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 md:py-3 lg:py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 md:text-sm lg:text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6 md:mb-3"
+              className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-gray-500 via-gray-700 shadow-3xl to-gray-800 hover:opacity-90 text-white py-3 md:py-3 lg:py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 md:text-sm lg:text-lg font-medium  disabled:opacity-40  mb-6 md:mb-3"
             >
               <Play className="w-6 h-6" />
               <span>Start Quick Chat</span>
@@ -324,7 +390,7 @@ export const Main = () => {
             </div>
           </button>
           {/* Community Connect Card - Main Highlight */}
-          <div className="bg-gradient-to-br  md:w-[350px] lg:w-[480px] p-5 md:h-auto from-purple-600 to-blue-600 rounded-2xl mt-2  text-white relative overflow-hidden">
+          <div className="bg-gradient-to-br  md:w-[350px] lg:w-[480px] p-5 md:h-auto from-emerald-600 to-emerald-700 rounded-2xl mt-2  text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
 
@@ -387,7 +453,7 @@ export const Main = () => {
 
               <button
                 onClick={() => setShowCommunities(true)}
-                className="bg-white hover:cursor-pointer text-purple-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 w-full justify-center"
+                className="bg-white hover:cursor-pointer text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 w-full justify-center"
               >
                 <span>Explore Communities</span>
                 <ArrowRight className="w-5 h-5" />
@@ -412,11 +478,11 @@ export const Main = () => {
         <div className="mb-4 mt-4 flex justify-center h-[170px]">
           <div className="bg-white/80 backdrop-blur-sm p-6 pt-2 rounded-2xl  max-w-3xl mb-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-              How it works
+              How it works ?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
               <div className="text-center">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   1
                 </div>
                 <p className="text-sm text-gray-700">
@@ -425,7 +491,7 @@ export const Main = () => {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   2
                 </div>
                 <p className="text-sm text-gray-700">
@@ -433,7 +499,7 @@ export const Main = () => {
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
+                <div className="w-10 h-10 hover:cursor-pointer bg-emerald-600 text-white rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   3
                 </div>
                 <p className="text-sm text-gray-700">
@@ -459,13 +525,13 @@ export const Main = () => {
 
             {/* Sidebar Content */}
             <div className="flex-1">
-              <div className="relative mx-auto  mt-12 ">
+              <div className="relative mx-auto  mt-2 ">
                 <video
                   autoPlay
                   ref={sidebarVideoRef}
                   className="rounded-2xl w-full border border-gray-200 shadow-lg"
                 />
-                <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute top-4 left-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
                     Live
@@ -473,20 +539,56 @@ export const Main = () => {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <h3 className="font-medium text-blue-900 mb-2">Camera Tips</h3>
-                <ul className="text-sm text-blue-700 space-y-1">
+              <div className="mt-3 p-4 bg-emerald-50 rounded-xl border border-blue-200">
+                <h3 className="font-medium text-gray-700 mb-2">Camera Tips</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
                   <li>• Make sure you're well-lit</li>
                   <li>• Position camera at eye level</li>
                   <li>• Check your background</li>
                   <li>• Test your microphone</li>
                 </ul>
               </div>
+{/* Mic Test UI */}
+      {/* Mic Test UI */}
+<div className="mt-2 p-5 bg-white rounded-2xl ">
+  <h3 className="font-semibold text-gray-700 mb-3 text-lg">
+    🎙️ Test Your Microphone
+  </h3>
+
+  <div className="flex flex-col sm:flex-row items-center gap-4">
+    {/* Button */}
+    <button
+      onClick={isTestingMic ? stopMicTest : startMicTest}
+      className={`px-5 hover:cursor-pointer py-1 rounded-lg font-medium text-[14px] transition-all duration-200 shadow-sm
+        ${isTestingMic ? "bg-gray-700 hover:bg-gray-600 text-white" : "bg-emerald-600 hover:bg-emerald-700  text-white"}
+      `}
+    >
+      {isTestingMic ? "Stop Test" : "Test Mic"}
+    </button>
+
+    {/* Mic Level Bar */}
+    <div className="flex items-center h-7 w-36 bg-gray-100 rounded-full relative overflow-hidden border border-gray-300">
+      <div
+        className="absolute left-0 top-0 h-full bg-emerald-600 transition-all duration-100"
+        style={{ width: `${Math.min(100, Math.floor(micLevel * 800))}%` }}
+      />
+      <span className="absolute left-2 text-xs text-gray-700 font-semibold">
+        {micLevel > 0.001 ? "Input Detected" : "No Input"}
+      </span>
+    </div>
+  </div>
+
+  <p className="text-xs text-gray-600 mt-3 text-center sm:text-left">
+    Speak into your microphone. The green bar will react to your voice.
+  </p>
+</div>
+
+
             </div>
 
             <button
               onClick={handleSidebarToggle}
-              className="p-2 right-4 absolute bottom-7 hover:bg-blue-600 rounded-full bg-blue-700 hover:cursor-pointer  w-[130px] py-3 transition-colors"
+              className="p-2 right-4 absolute bottom-3 hover:bg-emerald-600 rounded-full bg-emerald-700 hover:cursor-pointer  w-[130px] py-3 transition-colors"
             >
               <span className="font-semibold text-white p-2 text-lg ">
                 Close

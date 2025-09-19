@@ -126,7 +126,7 @@ interface CommunitiesProps {
 const Communities: React.FC<CommunitiesProps> = ({
   onJoinCommunity,
   onBack,
-  totalCommunityCount,
+  // totalCommunityCount,
   communitySpecificUserCount,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
