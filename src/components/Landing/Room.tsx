@@ -733,7 +733,7 @@ const Room = ({
           </div>
 
           {showSocialModal && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="absolute inset-0 bg-black/90 flex items-center justify-center z-50">
               <div className="bg-gray-900 p-4 rounded-lg shadow-xl w-80">
                 <h3 className="text-lg mb-2">Select Social Links</h3>
 
@@ -762,6 +762,23 @@ const Room = ({
                       </label>
                     );
                   })}
+                  <label
+                    key="email"
+                    className="flex items-center gap-2 text-sm text-gray-300"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedSocials.includes("email")}
+                      onChange={(e) => {
+                        setSelectedSocials((prev) =>
+                          e.target.checked
+                            ? [...prev, "email"]
+                            : prev.filter((s) => s !== "email")
+                        );
+                      }}
+                    />
+                    email:<span className="truncate">{user.email}</span>
+                  </label>
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">
@@ -779,6 +796,24 @@ const Room = ({
                     onClick={() => {
                       const msg = selectedSocials
                         .map((s) => {
+                          if (s === "email") {
+                            if (!user.email) return "";
+
+                            return `
+        <div class="bg-gray-800/60 p-3 rounded-md mb-2 flex items-center gap-3 text-white">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold mb-1">Email</div>
+            <a href="mailto:${user.email}" class="underline break-all text-gray-200">${user.email}</a>
+          </div>
+          <button 
+            class="copy-btn text-gray-300 hover:text-white text-sm flex-shrink-0" 
+            data-link="${user.email}">
+            📋
+          </button>
+        </div>
+      `;
+                          }
+
                           const key = s;
                           const link =
                             user.socialLinks?.[
