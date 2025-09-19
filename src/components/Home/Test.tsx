@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/utils";
 
-
 const testEmails = [
   "testuser_test1@test1.ac.in",
   "testuser_test2@test2.ac.in",
@@ -91,8 +90,6 @@ export default function Test() {
     }
   };
 
-
-
   return (
     <div className="w-full max-w-md mx-auto">
       <Card
@@ -110,12 +107,18 @@ export default function Test() {
 
         {!isTestMode ? (
           <div className="space-y-4 flex flex-col items-center">
-            <GoogleLogin
-              onSuccess={(res) =>
-                res.credential && mutation.mutate(res.credential)
-              }
-              onError={() => toast.error("Google Login Failed")}
-            />
+            {mutation.isPending ? (
+              <div className="flex items-center">
+                <span className="mr-2">Signing in...</span>
+              </div>
+            ) : (
+              <GoogleLogin
+                onSuccess={(res) =>
+                  res.credential && mutation.mutate(res.credential)
+                }
+                onError={() => toast.error("Google Login Failed")}
+              />
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
