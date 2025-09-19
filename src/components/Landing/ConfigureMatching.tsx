@@ -122,8 +122,8 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                   onClick={() => toggleState(state)}
                   className={`p-3 rounded-lg border text-left transition-all duration-200 ${
                     selectedStates.includes(state) || selectedStates === "*"
-                      ? "bg-emerald-50 border-blue-500 text-blue-900"
-                      : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"
+                      ? "bg-emerald-50 border-emerald-900 text-emerald-800"
+                      : "bg-white border-gray-500 text-gray-700 hover:border-gray-700"
                   }`}
                 >
                   <div className="flex items-center justify-between">
