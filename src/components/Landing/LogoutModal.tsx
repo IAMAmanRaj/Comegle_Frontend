@@ -11,10 +11,10 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose, onConfirm })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-emerald-50 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Confirm Logout</h2>
+          <h2 className="text-lg font-semibold text-gray-700">Confirm Logout</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
@@ -30,13 +30,13 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose, onConfirm })
         <div className="flex space-x-3 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            className="px-4 py-2 text-gray-700 border border-gray-300 hover:cursor-pointer rounded-lg hover:bg-gray-50 transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            className="px-4 py-2 bg-emerald-600 hover:cursor-pointer text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200"
           >
             Logout
           </button>
