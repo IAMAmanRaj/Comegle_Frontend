@@ -34,9 +34,9 @@ const ProfileHeader: React.FC<Props> = ({
         {!isEditing ? (
           <motion.div
             key="editBtn"
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+            exit={{ opacity: 0, y: 0 }}
             transition={{ duration: 0.25 }}
           >
             <Button
@@ -51,22 +51,23 @@ const ProfileHeader: React.FC<Props> = ({
           <motion.div
             key="editActions"
             className="flex flex-row gap-2"
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+            exit={{ opacity: 0, y: 0 }}
             transition={{ duration: 0.25 }}
             >
-                <Button
+               
+           <Button
               onClick={onCancel}
               className="flex items-center hover:cursor-pointer bg-red-700 hover:bg-red-700 w-auto"
             >
               <span className="text-md mb-1 pl-1">Close</span>
               <IoReturnUpBack />
             </Button>
-          
 
             <Button
               onClick={onSave}
+              
               className=" bg-green-600 hover:cursor-pointer hover:bg-green-700"
             >
               <span className="text-sm mb-1">Save</span>

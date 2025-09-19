@@ -103,13 +103,13 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
               <div className="flex space-x-2">
                 <button
                   onClick={selectAll}
-                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors duration-200"
+                  className="text-sm text-emerald-700 hover:text-emerald-600 hover:cursor-pointer transition-colors duration-200"
                 >
                   Select All
                 </button>
                 <button
                   onClick={clearAll}
-                  className="text-sm text-red-600 hover:text-red-700 transition-colors duration-200"
+                  className="text-sm text-red-600 hover:text-red-700 hover:cursor-pointer transition-colors duration-200"
                 >
                   Clear All
                 </button>
@@ -122,14 +122,14 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                   onClick={() => toggleState(state)}
                   className={`p-3 rounded-lg border text-left transition-all duration-200 ${
                     selectedStates.includes(state) || selectedStates === "*"
-                      ? "bg-blue-50 border-blue-500 text-blue-900"
+                      ? "bg-emerald-50 border-blue-500 text-blue-900"
                       : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{state}</span>
                     {selectedStates.includes(state) || selectedStates === "*" ? (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <Check className="w-4 h-4 text-emerald-900" />
                     ) : null}
                   </div>
                 </button>
@@ -147,7 +147,7 @@ const ConfigureMatching: React.FC<ConfigureMatchingProps> = ({
                 {selectedStates.slice(0, 10).map((state) => (
                   <span
                     key={state}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full"
                   >
                     {state}
                   </span>
