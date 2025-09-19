@@ -109,7 +109,7 @@ export default function Test() {
         </div>
 
         {!isTestMode ? (
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col items-center">
             <GoogleLogin
               onSuccess={(res) =>
                 res.credential && mutation.mutate(res.credential)
