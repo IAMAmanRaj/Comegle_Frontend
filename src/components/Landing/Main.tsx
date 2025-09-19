@@ -218,10 +218,10 @@ export const Main = () => {
   }
 
   return (
-    <div className="h-full overflow-scroll lg:overflow-hidden lg:h-screen z-20 flex flex-col">
+    <div className="overflow-scroll lg:overflow-hidden h-full md:h-[100vh] z-20 ">
       {/* Background image */}
       <div
-        className="absolute inset-0 w-full h-full -z-10"
+        className="absolute hidden md:block inset-0 w-full h-full -z-10"
         style={{
           backgroundImage: "url('/images/landing/bg.png')",
           backgroundSize: "cover",
@@ -230,7 +230,7 @@ export const Main = () => {
         }}
       />
       {/* Opacity overlay - adjust bg-black/xx as needed */}
-      <div className="absolute inset-0 w-full h-full z-10 bg-black/30" />{" "}
+      <div className="absolute hidden md:block inset-0 w-full h-full -z-10 bg-black/30" />{" "}
       {/* <-- change 30 to 40, 50, etc. */}
       <Header
         user={user as User}
@@ -238,11 +238,11 @@ export const Main = () => {
         onLogoutClick={() => setShowLogoutModal(true)}
       />
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative z-30">
+      <main className="flex-1 flex flex-col  relative z-30">
         {/* Check Hair Button */}
         <button
           onClick={handleSidebarToggle}
-          className="absolute bottom-6 right-6 z-40 hover:cursor-pointer bg-white backdrop-blur-sm hover:bg-white/80 shadow-lg rounded-full p-4 transition-all duration-300 transform hover:scale-110 border border-gray-200"
+          className="hidden lg:block absolute bottom-6 right-6  z-40 hover:cursor-pointer bg-white backdrop-blur-sm hover:bg-white/80 shadow-lg rounded-full p-4 transition-all duration-300 transform hover:scale-110 border border-gray-200"
           title="Check your appearance"
         >
           <div className="flex items-center space-x-2">
@@ -252,152 +252,169 @@ export const Main = () => {
         </button>
 
         {/* Central Content */}
-        <div className="flex-1 flex items-center justify-center px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl w-full">
-            {/* Quick Connect Card */}
-            <div className="bg-white/90 backdrop-blur-sm  p-8 h-[90%] mt-4 rounded-2xl shadow-xl border border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
-                Quick Connect
-              </h2>
+        <div className="flex flex-col md:flex-row h-auto py-3 gap-4 overflow-hidden items-center md:justify-center px-4 md:px-8">
+          {/* Quick Connect Card */}
+          <div className="bg-white/90 backdrop-blur-sm mt-2 w-full md:w-[350px] lg:w-[480px] p-3 md:pb-2 md:pt-6 lg:pt-5 md:h-auto rounded-2xl  border border-gray-200">
+            <h2 className="md:text-lg lg:text-2xl font-semibold text-gray-900 mb-6 text-center">
+              Quick Connect
+            </h2>
 
-              <div className="flex items-center justify-between mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
-                <div className="flex items-center  hover:cursor-pointer">
-                  <Users className="w-5 h-5 text-green-600 mr-2" />
-                  {/* if user count is more than 1 then show students else show join in and let other's know you're here */}
-                  {userCountData?.general >= 1 ? (
-                    <span className="text-green-800 font-semibold">
-                      {userCountData?.general}{" "}
-                      {userCountData?.general > 1 ? "students" : "student"}{" "}
-                      online
-                    </span>
+            <div className="flex items-center justify-between mb-6 md:mb-2 lg:mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
+              <div className="flex items-center  hover:cursor-pointer">
+                <Users className="w-5 h-5 text-green-600 mr-2 " />
+                {/* if user count is more than 1 then show students else show join in and let other's know you're here */}
+                {userCountData?.general >= 1 ? (
+                  <span className="text-green-800 font-semibold">
+                    {userCountData?.general}{" "}
+                    {userCountData?.general > 1 ? "students" : "student"} online
+                  </span>
+                ) : (
+                  <span className="text-green-800 font-semibold text-[14px] sm:text-[16px] md:text-[13px] lg:text-[16px]">
+                    Join in and let others know you're here
+                  </span>
+                )}
+              </div>
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse hidden md:block"></div>
+            </div>
+
+            {/* You'll be joining as */}
+            <div className="mb-4">
+              <p className="text-gray-600 mb-3 ml-1 font-medium">
+                You'll be joining as:
+              </p>
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-gray-200">
+                <p className="font-semibold text-gray-900">@{user?.username}</p>
+                <p className="text-sm text-gray-600">
+                  {user?.college?.name}, {user?.college?.state}
+                </p>
+              </div>
+            </div>
+
+            {/* Configure Matching */}
+            <button
+              onClick={() => setShowConfigModal(true)}
+              className="w-full  hover:cursor-pointer  bg-teal-700 text-white py-3 px-6 rounded-xl hover:bg-teal-600 transition-all duration-300 flex items-center justify-center space-x-3 font-medium transform hover:scale-105"
+            >
+              <Settings className="w-5 h-5 " />
+              <span>Configure Matching</span>
+            </button>
+
+            <button
+              onClick={() => {
+                console.log(matchingPreferences);
+                setSelectedCommunity(null);
+                setJoined(true);
+              }}
+              disabled={!user || !user.username?.trim()}
+              className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 md:py-3 lg:py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 md:text-sm lg:text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6 md:mb-3"
+            >
+              <Play className="w-6 h-6" />
+              <span>Start Quick Chat</span>
+            </button>
+          </div>
+
+          <button
+            onClick={handleSidebarToggle}
+            className="block md:hidden  z-40 hover:cursor-pointer bg-white backdrop-blur-sm hover:bg-white/80 shadow-lg rounded-full p-4 transition-all duration-300 transform hover:scale-110 border border-gray-200"
+            title="Check your appearance"
+          >
+            <div className="flex items-center space-x-2">
+              <Camera className="w-7 h-7 text-gray-700" />
+              <UserIcon className="w-7 h-7 text-gray-700" />
+            </div>
+          </button>
+          {/* Community Connect Card - Main Highlight */}
+          <div className="bg-gradient-to-br  md:w-[350px] lg:w-[480px] p-5 md:h-auto from-purple-600 to-blue-600 rounded-2xl mt-2  text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center mb-4 md:mb-2">
+                <TrendingUp className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-2" />
+                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">
+                  Featured
+                </span>
+              </div>
+
+              <h3 className="text-2xl md:text-lg lg:text-2xl font-bold mb-3">
+                Join Interest Communities
+              </h3>
+
+              <p className="text-white/90 mb-4 text-md md:text-sm lg:text-lg leading-relaxed">
+                Connect with students who share your passions. From coding to
+                movies, find your tribe in our exclusive community rooms.
+              </p>
+
+              {/* Live User Count */}
+              <div className="flex items-center justify-between mb-4 p-3 bg-white/20 rounded-xl border border-white/30">
+                <div className="flex items-center">
+                  <Users className="w-5 h-5 text-white mr-2" />
+                  <span className="text-white font-semibold">
+                    {totalCommunityCount} in communities
+                  </span>
+                </div>
+                <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+              </div>
+
+              {/* Trending Communities */}
+              <div className="mb-6">
+                <p className="text-white/80 text-sm mb-2">Trending now:</p>
+                <div className="h-8 flex items-center">
+                  {trendingCommunities.length > 1 ? (
+                    <div className="relative w-full">
+                      {trendingCommunities.map((community, index) => (
+                        <div
+                          key={community}
+                          className={`absolute inset-0 flex items-center transition-all duration-500 ${
+                            index === currentTrendingIndex
+                              ? "opacity-100 translate-y-0"
+                              : "opacity-0 translate-y-2"
+                          }`}
+                        >
+                          <span className="bg-white/30 px-3 py-1 rounded-full text-sm font-semibold text-white">
+                            {community}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <span className="text-green-800 font-semibold text-sm">
-                      Join in and let others know you're here
+                    <span className="bg-white/30 px-3 py-1 rounded-full text-sm font-semibold text-white">
+                      {trendingCommunities[0]}
                     </span>
                   )}
                 </div>
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               </div>
-
-              {/* You'll be joining as */}
-              <div className="mb-4">
-                <p className="text-gray-600 mb-3 font-medium">
-                  You'll be joining as:
-                </p>
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-gray-200">
-                  <p className="font-semibold text-gray-900">
-                    @{user?.username}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {user?.college?.name}, {user?.college?.state}
-                  </p>
-                </div>
-              </div>
-
-              {/* Configure Matching */}
-              <button
-                onClick={() => setShowConfigModal(true)}
-                className="w-full  hover:cursor-pointer bg-teal-700 text-white py-3 px-6 rounded-xl hover:bg-teal-600 transition-all duration-300 flex items-center justify-center space-x-3 font-medium transform hover:scale-105"
-              >
-                <Settings className="w-5 h-5 " />
-                <span>Configure Matching</span>
-              </button>
 
               <button
-                onClick={() => {
-                  console.log(matchingPreferences);
-                  setSelectedCommunity(null);
-                  setJoined(true);
-                }}
-                disabled={!user || !user.username?.trim()}
-                className="w-full mt-2  hover:cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-3 text-lg font-medium shadow-lg disabled:opacity-40 transform hover:scale-105 mb-6"
+                onClick={() => setShowCommunities(true)}
+                className="bg-white hover:cursor-pointer text-purple-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 w-full justify-center"
               >
-                <Play className="w-6 h-6" />
-                <span>Start Quick Chat</span>
+                <span>Explore Communities</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
-            </div>
-
-            {/* Community Connect Card - Main Highlight */}
-            <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-8 rounded-2xl h-[90%] mt-4 shadow-2xl text-white relative overflow-hidden transform scale-100">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center mb-4">
-                  <TrendingUp className="w-6 h-6 mr-2" />
-                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">
-                    Featured
-                  </span>
-                </div>
-
-                <h3 className="text-2xl font-bold mb-3">
-                  Join Interest Communities
-                </h3>
-
-                <p className="text-white/90 mb-4 leading-relaxed">
-                  Connect with students who share your passions. From coding to
-                  movies, find your tribe in our exclusive community rooms.
-                </p>
-
-                {/* Live User Count */}
-                <div className="flex items-center justify-between mb-4 p-3 bg-white/20 rounded-xl border border-white/30">
-                  <div className="flex items-center">
-                    <Users className="w-5 h-5 text-white mr-2" />
-                    <span className="text-white font-semibold">
-                      {totalCommunityCount} in communities
-                    </span>
-                  </div>
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                </div>
-
-                {/* Trending Communities */}
-                <div className="mb-6">
-                  <p className="text-white/80 text-sm mb-2">Trending now:</p>
-                  <div className="h-8 flex items-center">
-                    {trendingCommunities.length > 1 ? (
-                      <div className="relative w-full">
-                        {trendingCommunities.map((community, index) => (
-                          <div
-                            key={community}
-                            className={`absolute inset-0 flex items-center transition-all duration-500 ${
-                              index === currentTrendingIndex
-                                ? "opacity-100 translate-y-0"
-                                : "opacity-0 translate-y-2"
-                            }`}
-                          >
-                            <span className="bg-white/30 px-3 py-1 rounded-full text-sm font-semibold text-white">
-                              {community}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="bg-white/30 px-3 py-1 rounded-full text-sm font-semibold text-white">
-                        {trendingCommunities[0]}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowCommunities(true)}
-                  className="bg-white text-purple-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 w-full justify-center"
-                >
-                  <span>Explore Communities</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
             </div>
           </div>
         </div>
 
+         {/* Check Hair Button */}
+        <button
+          onClick={handleSidebarToggle}
+          className="hidden md:block lg:hidden w-fit mx-auto  z-40 hover:cursor-pointer bg-white backdrop-blur-sm hover:bg-white/80 shadow-lg rounded-full p-4 transition-all duration-300 transform hover:scale-110 border border-gray-200"
+          title="Check your appearance"
+        >
+          <div className="flex items-center space-x-2">
+            <Camera className="w-7 h-7 text-gray-700" />
+            <UserIcon className="w-7 h-7 text-gray-700" />
+          </div>
+        </button>
+
         {/* How it Works - Bottom Center */}
-        <div className="pb-3 flex justify-center h-[170px]">
-          <div className="bg-white/80 backdrop-blur-sm p-6 pt-2 pb-2 rounded-2xl border border-gray-200 shadow-lg max-w-3xl mb-2">
+        <div className="mb-4 mt-4 flex justify-center h-[170px]">
+          <div className="bg-white/80 backdrop-blur-sm p-6 pt-2 rounded-2xl  max-w-3xl mb-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
               How it works
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
               <div className="text-center">
                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-semibold mx-auto mb-2">
                   1

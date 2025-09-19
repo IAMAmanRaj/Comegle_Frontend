@@ -167,26 +167,26 @@ const Communities: React.FC<CommunitiesProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-emerald-50">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
           <button
             onClick={onBack}
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
+            className="inline-flex items-center text-2xl hover:cursor-pointer text-gray-600 hover:text-gray-900 mb-6 transition-colors duration-200"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Home
           </button>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-emerald-600 mb-4">
             Find Your Community
           </h1>
           <p className="text-xl text-gray-600 mb-6">
             Connect with{" "}
-            <span className="font-semibold text-blue-600">
+            {/* <span className="font-semibold text-blue-600">
               {totalCommunityCount}
-            </span>{" "}
+            </span>{" "} */}
             active students across different interests
           </p>
 
@@ -199,7 +199,7 @@ const Communities: React.FC<CommunitiesProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={SEARCH_SUGGESTIONS[currentSuggestion]}
-                className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm"
+                className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-gray-700 focus:outline-none transition-all duration-300 bg-white/80 backdrop-blur-sm"
               />
             </div>
           </div>
@@ -211,18 +211,11 @@ const Communities: React.FC<CommunitiesProps> = ({
             <div
               key={community.id}
               onClick={() => onJoinCommunity(community.topic)} // <-- change here!
-              className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1"
+              className="bg-white/80 relative backdrop-blur-sm rounded-2xl p-6 pl-4 pt-10 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1"
             >
-              {community.isTrending && (
-                <div className="flex items-center mb-3">
-                  <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    Trending Now
-                  </div>
-                </div>
-              )}
+             
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+              <h3 className="text-xl font-semibold text-gray-700 mb-2 group-hover:text-gray-700 transition-colors duration-200">
                 {community.name}
               </h3>
 
@@ -231,7 +224,7 @@ const Communities: React.FC<CommunitiesProps> = ({
               </p>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center text-green-600">
+                <div className="flex items-center text-emerald-700">
                   <Users className="w-4 h-4 mr-2" />
                   <span className="font-semibold">
                     {communitySpecificUserCount[community.topic]}
@@ -243,6 +236,14 @@ const Communities: React.FC<CommunitiesProps> = ({
                   {community.category}
                 </span>
               </div>
+               {community.isTrending && (
+                <div className="flex items-center absolute top-3 left-3">
+                  <div className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    Trending Now
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -251,7 +252,7 @@ const Communities: React.FC<CommunitiesProps> = ({
         <div className="text-center">
           <button
             onClick={() => setShowAddInterestModal(true)}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="inline-flex items-center px-6 py-3 font-semibold text-white rounded-3xl bg-emerald-600 hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             <Plus className="w-5 h-5 mr-2" />
             Can't find your interest?

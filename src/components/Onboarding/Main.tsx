@@ -8,6 +8,14 @@ import {
   userOnboardingSchema,
   type userOnboardingPayload,
 } from "../../pages/Onboarding/Onboarding.schema";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -77,8 +85,8 @@ const Main = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-700 via-pink-500 to-yellow-400 text-white px-4">
-      <h1 className="text-3xl font-bold mb-6">Welcome to Onboarding 🚀</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-100 text-white px-4">
+      <h1 className="text-2xl sm:text-3xl text-emerald-600 font-bold mb-6">Welcome to Onboarding 🚀</h1>
 
       {user && (
         <form
@@ -90,40 +98,46 @@ const Main = () => {
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-white shadow-md mx-auto"
           />
-          <h2 className="text-2xl font-semibold text-center">
+          <h2 className="text-2xl font-semibold text-center text-gray-700">
             {user?.full_name}
           </h2>
-          <p className="text-white/80 text-center">{user?.email}</p>
+          <p className="text-center text-gray-700">{user?.email}</p>
           <input
-            className="p-2 rounded text-white"
+            className="p-2 rounded text-gray-700"
             defaultValue={user?.college?.name}
             disabled={true}
           />
 
-          <input
+          <Input
             name="username"
             placeholder="Username"
-            className="p-2 rounded text-white"
+            className="p-2 rounded font-bold text-gray-700"
             required
           />
-          <input
+          <Input
             name="age"
             type="number"
             placeholder="Age"
-            className="p-2 rounded text-white"
+            className="p-2 rounded font-bold text-gray-700"
             required
           />
-          <select name="gender" className="p-2 rounded text-black" required>
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
+          
+         {/* Gender Select */}
+<Select name="gender" required>
+  <SelectTrigger className="w-full data-[placeholder]:text-gray-400 bg-gray-700">
+    <SelectValue placeholder="Select Gender"  />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="Male" className="text-gray-700">Male</SelectItem>
+    <SelectItem value="Female">Female</SelectItem>
+    <SelectItem value="Other">Other</SelectItem>
+  </SelectContent>
+</Select>
 
           <button
             type="submit"
             disabled={saveUser.isPending}
-            className="mt-4 px-6 py-2 bg-white text-pink-600 font-semibold rounded-lg shadow-md hover:bg-pink-100 transition-all disabled:opacity-50"
+            className="mt-4 px-6 py-2 text-white bg-emerald-700 hover:bg-emerald-600 font-semibold rounded-lg shadow-md transition-all duration-300 disabled:opacity-50"
           >
             {saveUser.isPending ? "Saving..." : "Save & Continue"}
           </button>

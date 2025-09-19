@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, Send } from 'lucide-react';
-import toast from 'react-hot-toast';
+import React,{useState} from 'react';
+import { X } from 'lucide-react';
+// import toast from 'react-hot-toast';
+import { WiStars } from "react-icons/wi";
 
 interface AddInterestModalProps {
   isOpen: boolean;
@@ -9,35 +10,35 @@ interface AddInterestModalProps {
 
 const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) => {
   const [interest, setInterest] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!interest.trim()) return;
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!interest.trim()) return;
 
-    setIsSubmitting(true);
+  //   setIsSubmitting(true);
     
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+  //   try {
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
       
-      toast.success("We'll try to add your interest as quickly as possible so the next time you come here, you don't miss it and you see people in the live communities and your interest could be one of them.", {
-        duration: 5000,
-        style: {
-          maxWidth: '500px',
-        },
-      });
+  //     toast.success("We'll try to add your interest as quickly as possible so the next time you come here, you don't miss it and you see people in the live communities and your interest could be one of them.", {
+  //       duration: 5000,
+  //       style: {
+  //         maxWidth: '500px',
+  //       },
+  //     });
       
-      setInterest('');
-      onClose();
-    } catch (error) {
-      toast.error('Failed to submit your interest. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  //     setInterest('');
+  //     onClose();
+  //   } catch (error) {
+  //     toast.error('Failed to submit your interest. Please try again.');
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -50,19 +51,19 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) 
             </h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              className="p-2 hover:bg-emerald-50 hover:cursor-pointer rounded-full transition-colors duration-200"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-700" />
             </button>
           </div>
           <p className="text-sm text-gray-600 mt-2">
-            Tell us what community you'd like to see and we'll work on adding it!
+            Tell us what other communities you'd like to see here and we'll add it for you !
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="mb-6">
+        <form className="p-6">
+          {/* <div className="mb-6">
             <label htmlFor="interest" className="block text-sm font-medium text-gray-700 mb-2">
               Your Interest
             </label>
@@ -79,30 +80,27 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) 
             <p className="text-xs text-gray-500 mt-1">
               {interest.length}/100 characters
             </p>
-          </div>
+          </div> */}
 
-          <div className="flex space-x-3">
-            <button
+          <div className="flex space-x-3 justify-between">
+            {/* <button
               type="button"
               onClick={onClose}
               className="flex-1 px-4 py-3 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
             >
               Cancel
-            </button>
+            </button> */}
             <button
-              type="submit"
-              disabled={!interest.trim() || isSubmitting}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Submit
-                </>
-              )}
-            </button>
+  disabled
+  className="flex-1 px-4 py-3 bg-emerald-800 text-white rounded-xl 
+             cursor-not-allowed opacity-60 flex items-center justify-center"
+>
+  <span className="flex flex-row text-2xl font-bold items-center">
+    Coming Soon
+    <WiStars className="w-10 h-10 ml-2 mt-2 text-white" />
+  </span>
+</button>
+
           </div>
         </form>
       </div>

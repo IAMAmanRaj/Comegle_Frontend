@@ -70,8 +70,8 @@ const ProfileHeader: React.FC<Props> = ({
               className=" bg-green-600 hover:cursor-pointer hover:bg-green-700"
             >
               <span className="text-sm mb-1">Save</span>
-              <ImShift size={20} />
-              <MdOutlineKeyboardReturn size={16} />
+              {/* <ImShift size={20} />
+              <MdOutlineKeyboardReturn size={16} /> */}
             </Button>
           </motion.div>
         )}

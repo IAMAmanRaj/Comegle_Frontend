@@ -14,22 +14,23 @@ const Header: React.FC<HeaderProps> = ({
   onLogoutClick,
 }) => {
   return (
-    <header className="bg-white shadow-sm  z-30 border-b border-gray-200">
+   <header className="shadow-sm z-30 pt-2 border-b border-gray-200 backdrop-blur-[2px] bg-white/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <h1 className="text-2xl font-bold text-gray-900">
               Comegle 
-              <span className="text-[10px]  text-gray-400">
-                - Omegle but for Colleges ;)
-              </span>
+              {/* <span className="text-[15px]  text-white">
+                -Omegle but for Colleges ;)
+              </span> */}
             </h1>
           </div>
 
           <div className="flex items-center space-x-4">
             <button
               onClick={onProfileClick}
-              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              title="Profile"
+              className="flex items-center hover:cursor-pointer space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             >
               {user.avatar_url ? (
                 <img
@@ -49,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={onLogoutClick}
-              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+              className="p-2 text-gray-500 hover:cursor-pointer hover:text-red-700 hover:bg-gray-200 rounded-lg transition-colors duration-200"
               title="Logout"
             >
               <LogOut className="w-5 h-5" />
