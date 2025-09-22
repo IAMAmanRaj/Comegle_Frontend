@@ -83,6 +83,7 @@ const Room = ({
   const [showOptions, setShowOptions] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
   const [selectedSocials, setSelectedSocials] = useState<string[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const appendMessageFromSender = (msg: {
     senderName: string;
@@ -90,6 +91,10 @@ const Room = ({
     message: string;
     timestamp: number;
   }) => {
+    // if chat is closed, show unread dot
+    if (!isChatOpen) {
+      setUnreadCount((c) => c + 1);
+    }
     setChatMessages((prev) => [...prev, msg]);
   };
 
@@ -310,9 +315,12 @@ const Room = ({
   }, [localVideoTrack]);
 
   useEffect(() => {
-    if (isChatOpen && chatInputRef.current) {
+    //only if device is desktop then only I want to focus
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isChatOpen && chatInputRef.current && !isMobile) {
       chatInputRef.current.focus();
     }
+    setUnreadCount(0);
   }, [isChatOpen]);
 
   useEffect(() => {
@@ -462,9 +470,14 @@ const Room = ({
             size="sm"
             title="Toggle Chat ( press Shift+C )"
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className="text-gray-300 hover:text-white hover:bg-gray-700"
+            className="relative text-gray-300 hover:text-white hover:bg-gray-700"
           >
             <MessageCircle className="w-5 h-5" />
+
+            {/* Green dot for unread messages */}
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-green-500 rounded-full"></span>
+            )}
           </Button>
         </div>
 
