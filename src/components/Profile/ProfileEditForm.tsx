@@ -108,11 +108,11 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="non-binary">Non-binary</SelectItem>
-              <SelectItem value="prefer not to say">
-                Prefer not to say
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="Prefer Not To Say">
+                Prefer Not To Say
               </SelectItem>
             </SelectContent>
           </Select>

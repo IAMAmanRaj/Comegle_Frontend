@@ -66,7 +66,7 @@ const Main = () => {
       avatar_url: user?.avatar_url,
       email: user?.email,
       college_id: user?.college?.id,
-      gender: form.get("gender"),
+      gender: form.get("gender")?.toString().trim(),
       age: Number(form.get("age")),
     };
 
@@ -130,7 +130,8 @@ const Main = () => {
   <SelectContent>
     <SelectItem value="Male" className="text-gray-700">Male</SelectItem>
     <SelectItem value="Female">Female</SelectItem>
-    <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+               <SelectItem value="Other">Prefer Not To Say</SelectItem>
   </SelectContent>
 </Select>
 
