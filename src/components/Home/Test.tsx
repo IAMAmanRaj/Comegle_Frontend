@@ -4,11 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Shuffle } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore, type User } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/utils";
+
+
+interface Test {
+  user: User;
+}
 
 const testEmails = [
   "testuser_test1@test1.ac.in",
@@ -18,13 +23,13 @@ const testEmails = [
   "testuser_test5@test5.ac.in",
 ];
 
-export default function Test() {
+    export default function Test({ user }: Test) {
   const [isTestMode, setIsTestMode] = useState(false);
   const [testEmail, setTestEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const setUser = useAuthStore((s) => s.setUser);
-  const setToken = useAuthStore((s) => s.setToken);
+  const { setUser, setToken, token } = useAuthStore();
+
   const navigate = useNavigate();
 
   const mutation = useMutation({
@@ -99,13 +104,27 @@ export default function Test() {
         <div className="text-center mb-6">
           <h3 className="text-xl font-semibold mb-2">Join Comegle</h3>
           <p className="text-muted-foreground cursor-pointer text-sm">
-            {isTestMode
+            {isTestMode && !user
               ? "Try with a test account"
               : "Sign in with your college email"}
           </p>
         </div>
 
-        {!isTestMode ? (
+        {
+          token &&  (
+           <Button
+              variant="outline"
+              className="w-full cursor-pointer bg-transparent"
+              onClick={() => navigate("/landing")}
+            >
+              <Shuffle className="w-4 h-4 mr-2" />
+              Continue as {user?.email}
+            </Button>
+          ) 
+        }
+
+        {!isTestMode && !token? (
+          
           <div className="space-y-4 flex flex-col items-center">
             {mutation.isPending ? (
               <div className="flex items-center">
@@ -139,7 +158,7 @@ export default function Test() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          !token && ( <div className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="email"
@@ -175,7 +194,8 @@ export default function Test() {
             >
               Back to Google Login
             </Button>
-          </div>
+          </div>)
+         
         )}
 
         <p className="text-xs text-muted-foreground text-center mt-4">
