@@ -22,12 +22,6 @@ const Main = () => {
 
   const { setUser, setToken, user } = useAuthStore();
 
-  useEffect(() => {
-    if (!user?.college) {
-      navigate("/");
-    }
-  }, []);
-
   // ✅ Save user mutation
   const saveUser = useMutation({
     mutationFn: async (payload: userOnboardingPayload) => {

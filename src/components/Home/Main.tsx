@@ -8,8 +8,10 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 gsap.registerPlugin(ScrollToPlugin);
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useAuthStore, type User } from "@/store/useAuthStore";
 
 export default function Main() {
+  const user = useAuthStore((s) => s.user);
   const activeStudentsRef = useRef<HTMLDivElement>(null);
   const collegesRef = useRef<HTMLDivElement>(null);
   const communitiesRef = useRef<HTMLDivElement>(null);
@@ -129,7 +131,7 @@ export default function Main() {
             </div>
 
             <div className="flex justify-center">
-              <Test />
+              <Test user={user as User} />
             </div>
           </div>
         </div>

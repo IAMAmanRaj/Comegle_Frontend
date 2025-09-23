@@ -15,11 +15,12 @@ function App() {
 
   const openRoutes = [
     { path: "/collegenotallowed", element: <CollegeNotAllowed /> },
-    { path: "/onboarding", element: <Onboarding /> },
+    { path: "/", element: <Home /> },
+   
   ]
 
   const authPublicRoutes = [
-    { path: "/", element: <Home /> },
+     { path: "/onboarding", element: <Onboarding /> },
     
   ];
 
