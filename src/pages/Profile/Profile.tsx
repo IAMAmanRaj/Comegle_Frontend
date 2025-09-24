@@ -13,6 +13,7 @@ import ProfileSocialLinks from "@/components/Profile/ProfileSocialLinks";
 import PageWrapper from "@/components/PageWrapper";
 import { motion, AnimatePresence } from "framer-motion";
 
+
 interface ProfileData {
   avatar_url: string;
   username: string;
@@ -154,6 +155,10 @@ const ProfilePage: React.FC = () => {
     setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleProfileIconChange = (newUrl: string) => {
+    setEditData((prev) => ({ ...prev, avatar_url: newUrl }));
+  }
+
   const handleSocialLinkChange = (
     platform: keyof ProfileData["socialLinks"],
     value: string
@@ -185,7 +190,11 @@ const ProfilePage: React.FC = () => {
           onCancel={handleCancelEdit}
         />
         <div className="max-w-4xl mx-auto px-3 py-8">
-          <ProfileAvatar avatar_url={profileData.avatar_url} />
+
+          <ProfileAvatar avatar_url={profileData.avatar_url}
+            isEditing={isEditing}
+            onChange={handleProfileIconChange} />
+          
           <AnimatePresence mode="wait">
             {!isEditing ? (
               <motion.div

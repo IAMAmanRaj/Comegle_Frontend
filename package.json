@@ -26,6 +26,7 @@
     "country-data-list": "^1.5.5",
     "framer-motion": "^12.23.13",
     "gsap": "^3.13.0",
+    "imagekitio-react": "^4.3.0",
     "lucide-react": "^0.543.0",
     "react": "^19.1.0",
     "react-circle-flags": "^0.0.23",
