@@ -19,6 +19,7 @@ import {
   collegeNotAllowedSchema,
 } from "./CollegeNotAllowed.schema";
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const CollegeNotAllowed = () => {
   const { user } = useAuthStore();
@@ -27,7 +28,7 @@ const CollegeNotAllowed = () => {
   // ✅ Mutation for request submission
   const submitCollegeRequest = useMutation({
     mutationFn: async (payload: collegeNotAllowedPayload) => {
-      const { data } = await api.post("/college/request-access", payload);
+      const { data } = await api.post("/college/request", payload);
       return data;
     },
     onSuccess: (response) => {
@@ -97,10 +98,9 @@ const CollegeNotAllowed = () => {
             {/* Redirect back to landing page */}
             <Link
               to="/"
-              className="inline-flex items-center justify-center gap-0 px-6 py-3 bg-transparent text-black font-medium rounded-lg  transition"
+              className="inline-flex items-center justify-center gap-0 px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg  transition"
             >
-              Go back to comegle.
-              <span className="text-emerald-600 mx-0 px-0">live</span>
+              Go back to comegle.live
             </Link>
           </div>
         </div>
@@ -111,6 +111,16 @@ const CollegeNotAllowed = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-emerald-50 to-white flex items-center justify-center p-4">
       <div className="max-w-3xl w-full space-y-10">
+        {/* Back Button */}
+        <div className="mb-6 w-full flex justify-center">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-medium"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </Link>
+        </div>
         {/* Header */}
         <div className="text-center mb-4">
           <div className="mx-auto w-8 h-8  sm:w-20 sm:h-20 bg-emerald-700 rounded-full flex items-center justify-center mb-6 shadow-lg">
