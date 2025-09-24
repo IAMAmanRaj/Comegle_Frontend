@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
-import CollegeNotAllowed from "./pages/CollegeNotAllowed";
+import CollegeNotAllowed from "./pages/CollegeNotAllowed/CollegeNotAllowed";
 import Onboarding from "./pages/Onboarding/Onboarding";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
