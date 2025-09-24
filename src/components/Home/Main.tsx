@@ -119,8 +119,8 @@ export default function Main() {
                   className="w-full sm:w-auto"
                 >
                   <Button
-                    size="lg"
-                    className="border-emerald-200 bg-white shadow-xl border text-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                  
+                    className="border-emerald-200 w-full  bg-white shadow-xl border text-emerald-700 hover:bg-emerald-50 cursor-pointer"
                   >
                     Watch Demo
                   </Button>
