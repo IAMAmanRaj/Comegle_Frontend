@@ -1,4 +1,3 @@
-// shared/schemas/user.schema.ts
 import { z } from "zod";
 
 export const userOnboardingSchema = z.object({
