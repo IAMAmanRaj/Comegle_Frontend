@@ -209,7 +209,7 @@ export default function Main() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/communitiesUI-L6u0xwxppcvcMk5aqyaPL2nfHI32Nr.png"
+                src="./images/landing/allTopics.png"
                 alt="Comegle Communities Interface"
                 className="rounded-xl shadow-2xl w-full"
               />
