@@ -12,7 +12,10 @@ import ProfileInfoGrid from "@/components/Profile/ProfileInfoGrid";
 import ProfileSocialLinks from "@/components/Profile/ProfileSocialLinks";
 import PageWrapper from "@/components/PageWrapper";
 import { motion, AnimatePresence } from "framer-motion";
-
+import {
+  saveEditUserProfileSchema,
+  type SaveEditUserProfilePayload,
+} from "./saveEditUserProfile.schema";
 
 interface ProfileData {
   avatar_url: string;
@@ -75,28 +78,13 @@ const ProfilePage: React.FC = () => {
   };
 
   // React Query mutation for saving profile
-  const { mutate: saveProfile } = useMutation({
-    mutationFn: async (data: ProfileData) => {
+  const saveProfileMutation = useMutation({
+    mutationFn: async (data: SaveEditUserProfilePayload) => {
       const toastId = toast.loading("Saving profile...");
       try {
-        const payload: any = {
-          avatar_url: data.avatar_url,
-          username: data.username,
-          full_name: data.fullName,
-          gender: data.gender,
-          country: data.country,
-          bio: data.bio,
-          tags: data.tags,
-          socials: { ...data.socialLinks },
-        };
+        const res = await api.post("/user/save", data);
 
-        const res = await api.post("/user/save", payload);
-
-        // If accessToken is present, update it (transparent refresh)
-        if (res.data.accessToken) {
-          setToken(res.data.accessToken);
-        }
-
+        if (res.data.accessToken) setToken(res.data.accessToken);
         toast.dismiss(toastId);
         setUser(res.data.user);
         return res.data;
@@ -109,14 +97,7 @@ const ProfilePage: React.FC = () => {
       if (data.success) {
         setUser({
           ...user,
-          avatar_url: data.user.avatar_url,
-          username: data.user.username,
-          full_name: data.user.full_name,
-          gender: data.user.gender,
-          country: data.user.country,
-          bio: data.user.bio,
-          tags: data.user.tags,
-          socialLinks: data.user.socialLinks,
+          ...data.user,
         });
         setIsEditing(false);
         toast.success("Profile updated successfully!");
@@ -125,25 +106,49 @@ const ProfilePage: React.FC = () => {
       }
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Error saving profile."
-      );
+      // First, check if it's a server validation error
+      const serverData = error?.response?.data?.data;
+      if (serverData && typeof serverData === "object") {
+        // Flatten nested arrays into a single message string
+        const messages = Object.values(serverData).flat().join(" & ");
+        toast.error(messages);
+        return;
+      }
+
+      // Otherwise fallback to server message or generic error
+      const serverMessage = error?.response?.data?.message;
+      toast.error(serverMessage || error?.message || "Error saving profile.");
     },
   });
 
   const handleSaveProfile = () => {
-    const missingFields: string[] = [];
-    if (!editData.username?.trim()) missingFields.push("Username");
-    if (!editData.fullName?.trim()) missingFields.push("Full Name");
+    // Map frontend data to Zod payload
+    const payload: SaveEditUserProfilePayload = {
+      full_name: editData.fullName,
+      username: editData.username,
+      avatar_url: editData.avatar_url,
+      gender: ["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"].includes(
+        editData.gender
+      )
+        ? (editData.gender as "MALE" | "FEMALE" | "OTHER" | "PREFER_NOT_TO_SAY")
+        : undefined,
+      country: editData.country,
+      bio: editData.bio,
+      tags: editData.tags,
+      socials: editData.socialLinks,
+    };
 
-    if (missingFields.length > 0) {
-      toast.error(`${missingFields.join(", ")} can't be empty`);
-      return;
-    }
+    const result = saveEditUserProfileSchema.safeParse(payload);
 
-    saveProfile(editData);
+    // if (!result.success) {
+    //   const messages = Object.values(result.error.flatten().fieldErrors)
+    //     .flat()
+    //     .join(" & ");
+    //   toast.error(messages);
+    //   return;
+    // }
+
+    saveProfileMutation.mutate(payload);
   };
 
   const handleCancelEdit = () => {
@@ -157,7 +162,7 @@ const ProfilePage: React.FC = () => {
 
   const handleProfileIconChange = (newUrl: string) => {
     setEditData((prev) => ({ ...prev, avatar_url: newUrl }));
-  }
+  };
 
   const handleSocialLinkChange = (
     platform: keyof ProfileData["socialLinks"],
@@ -178,7 +183,6 @@ const ProfilePage: React.FC = () => {
   //   setEditData((prev) => ({ ...prev, country: countryCode }));
   // };
 
-
   return (
     <PageWrapper>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -190,11 +194,12 @@ const ProfilePage: React.FC = () => {
           onCancel={handleCancelEdit}
         />
         <div className="max-w-4xl mx-auto px-3 py-8">
-
-          <ProfileAvatar avatar_url={profileData.avatar_url}
+          <ProfileAvatar
+            avatar_url={profileData.avatar_url}
             isEditing={isEditing}
-            onChange={handleProfileIconChange} />
-          
+            onChange={handleProfileIconChange}
+          />
+
           <AnimatePresence mode="wait">
             {!isEditing ? (
               <motion.div

@@ -33,7 +33,7 @@ const ProfileInfoGrid: React.FC<Props> = ({
         </div>
         <div>
           <p className="text-sm text-gray-500">Gender</p>
-          <p className="font-semibold text-gray-900 capitalize">{gender}</p>
+          <p className="font-semibold text-gray-900 capitalize">{gender.toLowerCase().split("_").join(" ")}</p>
         </div>
       </div>
       <div className="flex items-center space-x-3">
