@@ -1,32 +1,47 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { WiStars } from "react-icons/wi";
 import { api } from "@/lib/utils";
+import {
+  addCommunityToWaitListSchema,
+} from "@/pages/Landing/Communities.schema";
 
 interface AddInterestModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) => {
-  const [interest, setInterest] = useState('');
+const AddInterestModal: React.FC<AddInterestModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const [community_name, setCommunityName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!interest.trim()) return;
 
-    setIsSubmitting(true);
+    const result = addCommunityToWaitListSchema.safeParse({ community_name });
+    if (!result.success) {
+      // show validation errors immediately
+      const messages = Object.values(result.error.flatten().fieldErrors)
+        .flat()
+        .join(" & ");
+      toast.error(messages);
+      return; // stop here, don’t call API
+    }
+
+     setIsSubmitting(true);
 
     const loadingToast = toast.loading("Submitting your interest...");
 
     try {
       // Use POST and send community_name in the body
       const res = await api.post("/communities/add_community", {
-        community_name: interest.trim()
+        community_name,
       });
 
       if (res?.data?.success) {
@@ -34,16 +49,20 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) 
           id: loadingToast,
           duration: 5000,
           style: {
-            maxWidth: '500px',
+            maxWidth: "500px",
           },
         });
-        setInterest('');
         onClose();
       } else {
-        toast.error(res?.data?.message || 'Request Failed. Please try again.', { id: loadingToast });
+        toast.error(res?.data?.message || "Request Failed. Please try again.", {
+          id: loadingToast,
+        });
       }
-    } catch (error : any) {
-      toast.error(error.response?.data?.message || 'Request Failed. Please try again.', { id: loadingToast });
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Request Failed. Please try again.",
+        { id: loadingToast }
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -66,29 +85,33 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) 
             </button>
           </div>
           <p className="text-sm text-gray-600 mt-2">
-            Tell us what other communities you'd like to see here and we'll add it for you !
+            Tell us what other communities you'd like to see here and we'll add
+            it for you !
           </p>
         </div>
 
         {/* Form */}
         <form className="p-6" onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="interest" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="interest"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Your Interest
             </label>
             <input
               type="text"
               id="interest"
-              value={interest}
-              onChange={(e) => setInterest(e.target.value)}
+              value={community_name}
+              onChange={(e) => setCommunityName(e.target.value)}
               placeholder="e.g., Machine Learning, Cooking, Gaming..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-700 focus:border-transparent transition-all duration-200"
               maxLength={100}
-              required
               disabled={isSubmitting}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {interest.length}/100 characters
+          
+            <p className={`text-sm mt-1 ${community_name.length > 30 ? "text-red-700" : "text-gray-500"}`}>
+              {community_name.length}/30 characters
             </p>
           </div>
 
@@ -96,19 +119,14 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({ isOpen, onClose }) 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+              className="flex-1 px-4 py-2 hover:cursor-pointer text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !interest.trim()}
-              className={`flex-1 px-4 py-3 bg-emerald-800 text-white rounded-xl flex items-center justify-center ${
-                isSubmitting || !interest.trim()
-                  ? "cursor-not-allowed opacity-60"
-                  : ""
-              }`}
+              className={`flex-1 px-4 py-2 bg-emerald-700 hover:cursor-pointer text-white rounded-xl flex items-center justify-center`}
             >
               {isSubmitting ? (
                 <span className="flex flex-row text-lg font-bold items-center">
