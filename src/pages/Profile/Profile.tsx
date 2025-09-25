@@ -140,15 +140,15 @@ const ProfilePage: React.FC = () => {
 
     const result = saveEditUserProfileSchema.safeParse(payload);
 
-    // if (!result.success) {
-    //   const messages = Object.values(result.error.flatten().fieldErrors)
-    //     .flat()
-    //     .join(" & ");
-    //   toast.error(messages);
-    //   return;
-    // }
+    if (!result.success) {
+      const messages = Object.values(result.error.flatten().fieldErrors)
+        .flat()
+        .join(" & ");
+      toast.error(messages);
+      return;
+    }
 
-    saveProfileMutation.mutate(payload);
+    saveProfileMutation.mutate(result.data);
   };
 
   const handleCancelEdit = () => {
