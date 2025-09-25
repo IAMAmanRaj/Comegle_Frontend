@@ -40,7 +40,7 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({
 
     try {
       // Use POST and send community_name in the body
-      const res = await api.post("/communities/add_community", {
+      const res = await api.post("/communities/add", {
         community_name,
       });
 
@@ -115,28 +115,28 @@ const AddInterestModal: React.FC<AddInterestModalProps> = ({
             </p>
           </div>
 
-          <div className="flex space-x-3 justify-between">
+          <div className="flex space-x-3 justify-between items-end">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 hover:cursor-pointer text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+              className="w-[120px] h-[50px] text-lg hover:cursor-pointer text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`flex-1 px-4 py-2 bg-emerald-700 hover:cursor-pointer text-white rounded-xl flex items-center justify-center`}
+              className={`w-[170px] h-[50px] bg-emerald-700 hover:cursor-pointer text-white rounded-xl flex items-center justify-center`}
             >
               {isSubmitting ? (
-                <span className="flex flex-row text-lg font-bold items-center">
-                  Submitting...
-                  <WiStars className="w-8 h-8 ml-2 mt-1 text-white animate-spin" />
+                <span className="flex justify-center w-[300px] flex-row text-lg font-bold items-center">
+                  Submitting
+                  <WiStars className="w-8 h-8 mt-1 ml-1 text-white animate-spin transition-all duration-300" />
                 </span>
               ) : (
-                <span className="flex flex-row text-2xl font-bold items-center">
+                <span className="flex pl-4 w-[280px] justify-center flex-row  text-lg font-bold items-center">
                   Submit
-                  <WiStars className="w-10 h-10 ml-2 mt-2 text-white" />
+                  <WiStars className="w-10 h-10  mt-2 text-white" />
                 </span>
               )}
             </button>
