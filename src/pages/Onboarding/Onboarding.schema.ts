@@ -15,10 +15,27 @@ export const userOnboardingSchema = z.object({
   avatar_url: z.url("Invalid avatar URL"),
   email: z.email("Invalid email address"),
   college_id: z.uuid("Invalid collegeId"),
-  gender: z.enum(["Male", "Female", "Other"], {
-    message: "Gender must be Male, Female, or Other",
+  gender: z.enum(["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"], {
+    message: "Gender must be one of the allowed values",
   }),
-  age: z.int().min(16, "Minimum age is 16").max(100, "Maximum age is 100"),
+  dob: z
+    .preprocess((val) => {
+      if (typeof val === "string" || val instanceof Date) return new Date(val);
+    }, z.date())
+    .refine(
+      (date) => {
+        const today = new Date();
+        const age =
+          today.getFullYear() -
+          date.getFullYear() -
+          (today <
+          new Date(today.getFullYear(), date.getMonth(), date.getDate())
+            ? 1
+            : 0);
+        return age >= 16 && age <= 100;
+      },
+      { message: "Age must be between 16 and 100" }
+    ),
 });
 
 export type userOnboardingPayload = z.infer<typeof userOnboardingSchema>;
