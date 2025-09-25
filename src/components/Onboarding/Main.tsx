@@ -61,7 +61,7 @@ const Main = () => {
       email: user?.email,
       college_id: user?.college?.id,
       gender: form.get("gender")?.toString().trim(),
-      age: Number(form.get("age")),
+      dob: form.get("dob")?.toString().trim(), // YYYY-MM-DD
     };
 
     const result = userOnboardingSchema.safeParse(payload);
@@ -80,7 +80,9 @@ const Main = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-100 text-white px-4">
-      <h1 className="text-2xl sm:text-3xl text-emerald-600 font-bold mb-6">Welcome to Onboarding 🚀</h1>
+      <h1 className="text-2xl sm:text-3xl text-emerald-600 font-bold mb-6">
+        Welcome to Onboarding 🚀
+      </h1>
 
       {user && (
         <form
@@ -109,25 +111,33 @@ const Main = () => {
             required
           />
           <Input
-            name="age"
-            type="number"
-            placeholder="Age"
+            name="dob"
+            type="date"
+            placeholder="Date of Birth"
             className="p-2 rounded font-bold text-gray-700"
             required
           />
-          
-         {/* Gender Select */}
-<Select name="gender" required>
-  <SelectTrigger className="w-full data-[placeholder]:text-gray-400 bg-gray-700">
-    <SelectValue placeholder="Select Gender"  />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="Male" className="text-gray-700">Male</SelectItem>
-    <SelectItem value="Female">Female</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-               <SelectItem value="Other">Prefer Not To Say</SelectItem>
-  </SelectContent>
-</Select>
+
+          {/* Gender Select */}
+          <Select name="gender" required>
+            <SelectTrigger className="w-full data-[placeholder]:text-gray-400 bg-gray-700">
+              <SelectValue placeholder="Select Gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MALE" className="text-gray-700">
+                Male
+              </SelectItem>
+              <SelectItem value="FEMALE" className="text-gray-700">
+                Female
+              </SelectItem>
+              <SelectItem value="OTHER" className="text-gray-700">
+                Other
+              </SelectItem>
+              <SelectItem value="PREFER_NOT_TO_SAY" className="text-gray-700">
+                Prefer Not To Say
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           <button
             type="submit"
