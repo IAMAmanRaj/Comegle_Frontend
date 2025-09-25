@@ -23,33 +23,16 @@ const MOCK_COMMUNITIES: Community[] = [
     isTrending: true,
     category: "Technical",
   },
-  // {
-  //   id: "2",
-  //   topic: "system-design",
-  //   name: "System Design",
-  //   description: "Learn and share system design concepts",
-  //   activeUsers: 189,
-  //   isTrending: true,
-  //   category: "Technical",
-  // },
   {
     id: "3",
-    topic: "sports",
-    name: "Sports",
-    description: "Talk about your favorite sports",
-    activeUsers: 165,
-    isTrending: false,
-    category: "Lifestyle",
+    topic: "mockInterviews",
+    name: "Mock Interviews",
+    description: "Practice interviews with peers",
+    activeUsers: 156,
+    isTrending: true,
+    category: "Career",
   },
-  // {
-  //   id: "4",
-  //   topic: "mock-interviews",
-  //   name: "Mock Interviews",
-  //   description: "Practice interviews with peers",
-  //   activeUsers: 156,
-  //   isTrending: false,
-  //   category: "Career",
-  // },
+
   {
     id: "5",
     topic: "cp",
@@ -59,51 +42,79 @@ const MOCK_COMMUNITIES: Community[] = [
     isTrending: false,
     category: "Technical",
   },
-  // {
-  //   id: "6",
-  //   topic: "movies-tv",
-  //   name: "Movies & TV Shows",
-  //   description: "Discuss latest movies and series",
-  //   activeUsers: 298,
-  //   isTrending: true,
-  //   category: "Entertainment",
-  // },
-  // {
-  //   id: "7",
-  //   topic: "photography",
-  //   name: "Photography",
-  //   description: "Share and critique photos",
-  //   activeUsers: 87,
-  //   isTrending: false,
-  //   category: "Creative",
-  // },
-  // {
-  //   id: "8",
-  //   topic: "job_preparation",
-  //   name: "Placements & Jobs",
-  //   description: "Job search and placement tips",
-  //   activeUsers: 201,
-  //   isTrending: true,
-  //   category: "Career",
-  // },
-  // {
-  //   id: "9",
-  //   topic: "academics",
-  //   name: "Academics",
-  //   description: "Study groups and academic help",
-  //   activeUsers: 178,
-  //   isTrending: false,
-  //   category: "Education",
-  // },
-  // {
-  //   id: "10",
-  //   topic: "videography",
-  //   name: "Videography",
-  //   description: "Video creation and editing tips",
-  //   activeUsers: 92,
-  //   isTrending: false,
-  //   category: "Creative",
-  // },
+  {
+    id: "6",
+    topic: "ai",
+    name: "Artificial Intelligence",
+    description: "Discuss AI, ML, and deep learning",
+    activeUsers: 210,
+    isTrending: true,
+    category: "Technical",
+  },
+  {
+    id: "7",
+    topic: "chess",
+    name: "Chess",
+    description: "Strategies, openings, and online matches",
+    activeUsers: 132,
+    isTrending: false,
+    category: "Lifestyle",
+  },
+  {
+    id: "8",
+    topic: "openSource",
+    name: "Open Source",
+    description: "Contribute and collaborate on open source projects",
+    activeUsers: 198,
+    isTrending: true,
+    category: "Technical",
+  },
+  {
+    id: "9",
+    topic: "startups",
+    name: "Startups",
+    description: "Talk about building and scaling startups",
+    activeUsers: 176,
+    isTrending: true,
+    category: "Career",
+  },
+  {
+    id: "10",
+    topic: "movies",
+    name: "Movies & TV Shows",
+    description: "Discuss latest movies and series",
+    activeUsers: 298,
+    isTrending: true,
+    category: "Entertainment",
+  },
+  {
+    id: "11",
+    topic: "sports",
+    name: "Sports",
+    description: "Talk about your favorite sports",
+    activeUsers: 165,
+    isTrending: false,
+    category: "Lifestyle",
+  },
+
+  {
+    id: "12",
+    topic: "gaming",
+    name: "Gaming",
+    description: "PC, console, and mobile gaming discussions",
+    activeUsers: 254,
+    isTrending: false,
+    category: "Entertainment",
+  },
+  {
+    id: "13",
+    topic: "music",
+    name: "Music",
+    description: "Share playlists, songs, and discuss music trends",
+    activeUsers: 221,
+    isTrending: false,
+    category: "Creative",
+  },
 ];
 
 const SEARCH_SUGGESTIONS = [
@@ -161,11 +172,11 @@ const Communities: React.FC<CommunitiesProps> = ({
   }, [searchQuery]);
 
   // Sort communities - trending first
-  const sortedCommunities = [...filteredCommunities].sort((a, b) => {
-    if (a.isTrending && !b.isTrending) return -1;
-    if (!a.isTrending && b.isTrending) return 1;
-    return b.activeUsers - a.activeUsers;
-  });
+  // const sortedCommunities = [...filteredCommunities].sort((a, b) => {
+  //   if (a.isTrending && !b.isTrending) return -1;
+  //   if (!a.isTrending && b.isTrending) return 1;
+  //   return b.activeUsers - a.activeUsers;
+  // });
 
   return (
     //gradient bg
@@ -182,11 +193,11 @@ const Communities: React.FC<CommunitiesProps> = ({
           </button>
           <span className="flex flex-row w-full justify-center">
             <h1 className="text-4xl font-bold text-emerald-600 mb-4">
-            Find Your Community 
-          </h1>
-          <WiStars className="w-10 h-10 ml-2 mt-2 text-emerald-600" />
-</span>
-          
+              Find Your Community
+            </h1>
+            <WiStars className="w-10 h-10 ml-2 mt-2 text-emerald-600" />
+          </span>
+
           <p className="text-xl text-gray-600 mb-6">
             Connect with{" "}
             {/* <span className="font-semibold text-blue-600">
@@ -212,14 +223,12 @@ const Communities: React.FC<CommunitiesProps> = ({
 
         {/* Communities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {sortedCommunities.map((community) => (
+          {filteredCommunities.map((community) => (
             <div
               key={community.id}
               onClick={() => onJoinCommunity(community.topic)} // <-- change here!
               className="bg-white/80 relative backdrop-blur-sm rounded-2xl p-6 pl-4 pt-10 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1"
             >
-             
-
               <h3 className="text-xl font-semibold text-gray-700 mb-2 group-hover:text-gray-700 transition-colors duration-200">
                 {community.name}
               </h3>
@@ -241,7 +250,7 @@ const Communities: React.FC<CommunitiesProps> = ({
                   {community.category}
                 </span>
               </div>
-               {community.isTrending && (
+              {community.isTrending && (
                 <div className="flex items-center absolute top-3 left-3">
                   <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
                     <TrendingUp className="w-3 h-3 mr-1" />

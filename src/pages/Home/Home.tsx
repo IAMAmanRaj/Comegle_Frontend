@@ -1,4 +1,4 @@
-import Main from "../components/Home/Main";
+import Main from "../../components/Home/Main";
 
 const Home = () => {
   return <Main />;

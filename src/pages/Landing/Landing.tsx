@@ -1,4 +1,4 @@
-import { Main } from "../components/Landing/Main";
+import { Main } from "../../components/Landing/Main";
 
 const Landing = () => {
   return <Main />;

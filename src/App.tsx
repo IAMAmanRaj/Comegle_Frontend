@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Landing from "./pages/Landing";
+import Home from "./pages/Home/Home";
+import Landing from "./pages/Landing/Landing";
 import CollegeNotAllowed from "./pages/CollegeNotAllowed/CollegeNotAllowed";
 import Onboarding from "./pages/Onboarding/Onboarding";
 import { PrivateRoute } from "./components/PrivateRoute";
@@ -12,22 +12,17 @@ import { PublicRoute } from "./components/PublicRoute";
 const queryClient = new QueryClient();
 
 function App() {
-
   const openRoutes = [
     { path: "/collegenotallowed", element: <CollegeNotAllowed /> },
     { path: "/", element: <Home /> },
-   
-  ]
-
-  const authPublicRoutes = [
-     { path: "/onboarding", element: <Onboarding /> },
-    
   ];
+
+  const authPublicRoutes = [{ path: "/onboarding", element: <Onboarding /> }];
 
   const authPrivateRoutes = [
     { path: "/landing", element: <Landing /> },
     { path: "/profile", element: <ProfilePage /> },
-  ]
+  ];
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,20 +32,27 @@ function App() {
           {openRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />
           ))}
-         
+
           {/* Protected Public routes */}
           {authPublicRoutes.map(({ path, element }) => (
-            <Route key={path} path={path} element={<PublicRoute>{element}</PublicRoute>} />
+            <Route
+              key={path}
+              path={path}
+              element={<PublicRoute>{element}</PublicRoute>}
+            />
           ))}
 
           {/* Protected routes */}
           {authPrivateRoutes.map(({ path, element }) => (
-            <Route key={path} path={path} element={<PrivateRoute>{element}</PrivateRoute>} />
+            <Route
+              key={path}
+              path={path}
+              element={<PrivateRoute>{element}</PrivateRoute>}
+            />
           ))}
 
-            {/* Fallback 404 */}
-            <Route path="*" element={<div>Not Found</div>} />
-         
+          {/* Fallback 404 */}
+          <Route path="*" element={<div>Not Found</div>} />
         </Routes>
 
         <Toaster
