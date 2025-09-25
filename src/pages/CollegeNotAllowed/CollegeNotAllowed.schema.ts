@@ -13,7 +13,8 @@ const generalEmailDomains = [
 export const collegeNotAllowedSchema = z.object({
   full_name: z
     .string()
-    .min(3, "Full name must be at least 3 characters"),
+    .min(3, "Full name must be at least 3 characters")
+    .max(30, "Full name must be at most 30 characters"),
 
   college_email: z
     .email("Invalid email address")
@@ -30,7 +31,8 @@ export const collegeNotAllowedSchema = z.object({
 
   college_name: z
     .string()
-    .min(3, "College name must be at least 3 characters"),
+    .min(3, "College name must be at least 3 characters")
+    .max(100, "College name must be at most 100 characters"),
 });
 
 export type collegeNotAllowedPayload = z.infer<typeof collegeNotAllowedSchema>;
